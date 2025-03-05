@@ -1,10 +1,17 @@
 import './App.css';
+import Header from './Layout/Header';
+import Footer from './Layout/Footer';
+import Navbar from './Layout/Navbar';
 
 function App() {
   return (
-    <h1 className="text-5xl text-blue-600">
-      Test React + Tailwind
-    </h1>
+    <>
+      <Header></Header>
+      <div>
+        Hello
+      </div>
+      <Footer></Footer>
+    </>
   )
 }
 
