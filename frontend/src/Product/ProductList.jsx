@@ -1,7 +1,9 @@
 import React, { useState } from "react";
-import thumbnail from '../Images/thumbnail.png'
+import cart from '../Images/cart.png'
 import product1 from '../Images/product.png'
 import ImageSlider from "../Layout/IntroPic";
+import ProductInfo from "./ProductInfo";
+import { AnimatePresence } from "framer-motion";
 
 const products = [
   { id: 1, name: "Áo sơ mi 1", price: 200000, category: "Áo sơ mi", color: "Trắng" },
@@ -103,8 +105,18 @@ const ProductList = () => {
     setCurrentPage(1);
   };
 
-  const sayHello = () => {
-    alert('Hello my friend')
+  const [isOpenInfo, setIsOpenInfo] = useState(false)
+  const [selectedProduct, setSelectedProduct] = useState({})
+
+  const itemInfo = (selectedProduct) => {
+    setIsOpenInfo(!isOpenInfo)
+    setSelectedProduct(selectedProduct)
+    // alert('Hehehe')
+    // alert(selectedProduct.name)
+  }
+
+  const addToCart = () => {
+    alert('Item added')
   }
 
   return (
@@ -167,21 +179,28 @@ const ProductList = () => {
       </div>
 
       {/* Danh sách sản phẩm */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid max-sm:grid-cols-2 max-lg:grid-cols-3 grid-cols-4 gap-8 text-md">
         {currentProducts.length > 0 ? (
           currentProducts.map((product) => (
-            <div key={product.id} className="border p-4 text-center" onClick={sayHello}>
-              <img src={product1} alt="" />
-              <h3 className="text-lg font-semibold">{product.name}</h3>
-              <p className="text-gray-600">{product.price.toLocaleString()} VND</p>
-              {/* <p className="text-gray-500">Màu: {product.color}</p> */}
+            <div key={product.id} className="border border-[#cccccc] rounded-md p-2 text-center">
+              <img src={product1} alt="" onClick={() => itemInfo(product)} className="cursor-pointer" />
+              <div className="flex flex-row justify-between items-center">
+                <div className="flex flex-col items-start">
+                  <h3 className=" font-semibold">{product.name}</h3>
+                  <p className="text-gray-600">{product.price.toLocaleString()} VND</p>
+                  <p className="text-gray-500">Màu: {product.color}</p>
+                </div>
+                <img src={cart} alt="" className='w-7 h-7 cursor-pointer ' onClick={() => addToCart} />
+              </div>
             </div>
           ))
         ) : (
           <p className="text-center col-span-4 text-red-500">Không có sản phẩm nào!</p>
         )}
       </div>
-
+      <AnimatePresence>
+        {isOpenInfo && (<ProductInfo selectedProduct={selectedProduct} onClose={() => setIsOpenInfo(false)} ></ProductInfo>)}
+      </AnimatePresence>
       {/* Phân trang */}
       {totalPages > 1 && (
         <div className="flex justify-center mt-6 space-x-2">
