@@ -9,7 +9,7 @@ import Linkedin from '../Images/Linkedin.png'
 const Footer = () => {
 
     return (
-        <div className="bg-[#222222] text-white max-sm:text-blue-400 max-lg:text-red-400 px-10 py-5 max-sm:p-5
+        <div className="bg-[#111111] text-white max-sm:text-blue-400 max-lg:text-red-400 px-10 py-5 max-sm:p-5
                         flex flex-col justify-between ">
             {/* Info */}
             <div className="flex flex-row justify-between h-[20vh] mb-12 max-lg:flex-col max-lg:mb-28">

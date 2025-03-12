@@ -1,6 +1,6 @@
 const Header = () => {
     return (
-        <div className="bg-[#222222] h-[10vh] flex flex-row items-center justify-between ">
+        <div className="bg-[#111111] h-[10vh] flex flex-row items-center justify-between ">
             <p className="text-white text-2xl font-bold ml-10">TÊN CÔNG TY</p>
             <div className="flex flex-row justify-between w-60 mr-10">
                 <button className="text-black bg-white h-[5vh] w-[7rem] px-3 py-5
