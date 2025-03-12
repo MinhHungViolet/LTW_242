@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import thumbnail from '../Images/thumbnail.png'
+import product1 from '../Images/product.png'
 import ImageSlider from "../Layout/IntroPic";
 
 const products = [
@@ -74,7 +75,7 @@ const priceRanges = [
   { label: "Trên 500K", min: 500000, max: Infinity },
 ];
 
-const itemsPerPage = 12;
+const itemsPerPage = 8;
 
 const ProductList = () => {
   const [selectedCategory, setSelectedCategory] = useState("Tất cả");
@@ -102,64 +103,78 @@ const ProductList = () => {
     setCurrentPage(1);
   };
 
+  const sayHello = () => {
+    alert('Hello my friend')
+  }
+
   return (
     <div className="container mx-auto p-4">
       <ImageSlider></ImageSlider>
       {/* Bộ lọc */}
-      <div className="flex flex-wrap gap-4 mb-4">
-        {/* Lọc theo danh mục */}
-        <select
-          className="p-2 border rounded-lg"
-          value={selectedCategory}
-          onChange={(e) => handleFilterChange(setSelectedCategory, e.target.value)}
-        >
-          {categories.map((category) => (
-            <option key={category} value={category}>
-              {category}
-            </option>
-          ))}
-        </select>
+      <div className="flex flex-wrap flex-row items-center justify-center max-sm:flex-col max-sm:items-start gap-4 mb-4">
 
+        {/* Lọc theo danh mục */}
+        <div className="flex flex-row items-center">
+          <p>Danh mục: </p>
+          <select
+            className="p-2 border rounded-lg mx-2"
+            value={selectedCategory}
+            onChange={(e) => handleFilterChange(setSelectedCategory, e.target.value)}
+          >
+            {categories.map((category) => (
+              <option key={category} value={category}>
+                {category}
+              </option>
+            ))}
+          </select>
+        </div>
         {/* Lọc theo màu sắc */}
-        <select
-          className="p-2 border rounded-lg"
-          value={selectedColor}
-          onChange={(e) => handleFilterChange(setSelectedColor, e.target.value)}
-        >
-          {colors.map((color) => (
-            <option key={color} value={color}>
-              {color}
-            </option>
-          ))}
-        </select>
+        <div className="flex flex-row items-center">
+          <p>Màu sắc: </p>
+          <select
+            className="p-2 border rounded-lg mx-2"
+            value={selectedColor}
+            onChange={(e) => handleFilterChange(setSelectedColor, e.target.value)}
+          >
+            {colors.map((color) => (
+              <option key={color} value={color}>
+                {color}
+              </option>
+            ))}
+          </select>
+        </div>
 
         {/* Lọc theo giá */}
-        <select
-          className="p-2 border rounded-lg"
-          value={selectedPrice.label}
-          onChange={(e) =>
-            handleFilterChange(
-              setSelectedPrice,
-              priceRanges.find((range) => range.label === e.target.value)
-            )
-          }
-        >
-          {priceRanges.map((range) => (
-            <option key={range.label} value={range.label}>
-              {range.label}
-            </option>
-          ))}
-        </select>
+        <div className="flex flex-row items-center">
+          <p>Mức giá: </p>
+          <select
+            className="p-2 border rounded-lg mx-2"
+            value={selectedPrice.label}
+            onChange={(e) =>
+              handleFilterChange(
+                setSelectedPrice,
+                priceRanges.find((range) => range.label === e.target.value)
+              )
+            }
+          >
+            {priceRanges.map((range) => (
+              <option key={range.label} value={range.label}>
+                {range.label}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {/* Danh sách sản phẩm */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {currentProducts.length > 0 ? (
           currentProducts.map((product) => (
-            <div key={product.id} className="border p-4 text-center">
+            <div key={product.id} className="border p-4 text-center" onClick={sayHello}>
+              <img src={product1} alt="" />
               <h3 className="text-lg font-semibold">{product.name}</h3>
               <p className="text-gray-600">{product.price.toLocaleString()} VND</p>
-              <p className="text-gray-500">Màu: {product.color}</p>
+              {/* <p className="text-gray-500">Màu: {product.color}</p> */}
             </div>
           ))
         ) : (
@@ -174,9 +189,8 @@ const ProductList = () => {
             <button
               key={index}
               onClick={() => setCurrentPage(index + 1)}
-              className={`px-4 py-2 border ${
-                currentPage === index + 1 ? "bg-blue-500 text-white" : "bg-gray-200"
-              } rounded-lg hover:bg-blue-400 transition`}
+              className={`px-4 py-2 border ${currentPage === index + 1 ? "bg-blue-500 text-white" : "bg-gray-200"
+                } rounded-lg hover:bg-blue-400 transition`}
             >
               {index + 1}
             </button>

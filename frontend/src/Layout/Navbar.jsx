@@ -40,9 +40,8 @@ const Navbar = () => {
              {isOpen ? <X size={30} className='ml-5' /> : <Menu size={30} className='ml-5' />}
            </button>
             {/* Icon */}
-            <div className='flex flex-row mr-10 items-center justify-between w-[8rem]'>
+            <div className='flex flex-row mr-10 items-center justify-evenly w-[8rem]'>
                 <img src={cart} alt="" className='w-7 h-7  ' />
-                <img src={heart} alt="" className='w-7 h-7 ' />
                 <img src={avatar} alt="" className='w-8 h-8 rounded-full ' />
             </div>
             
