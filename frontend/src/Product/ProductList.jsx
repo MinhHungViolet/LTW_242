@@ -173,11 +173,11 @@ const ProductList = () => {
       </div>
 
       {/* Danh sách sản phẩm */}
-      <div className="grid max-sm:grid-cols-2 max-lg:grid-cols-3 grid-cols-4 gap-8 text-md">
+      <div className="grid max-sm:grid-cols-2 max-lg:grid-cols-3 max-xl:grid-cols-4 grid-cols-5 gap-8 text-md">
         {currentProducts.length > 0 ? (
           currentProducts.map((product) => (
-            <div key={product.id} className="border border-[#cccccc] rounded-md p-2 text-center">
-              <img src={product1} alt="" onClick={() => itemInfo(product)} className="cursor-pointer" />
+            <div key={product.id} className="border border-[#cccccc] rounded-md p-2 text-center hover:border-[#646edf] hover:scale-[1.02] duration-300">
+              <img src={product1} alt="" onClick={() => itemInfo(product)} className="cursor-pointer w-full mb-4" />
               <div className="flex flex-row justify-between items-center">
                 <div className="flex flex-col items-start">
                   <h3 className=" font-semibold">{product.name}</h3>
@@ -189,7 +189,7 @@ const ProductList = () => {
             </div>
           ))
         ) : (
-          <p className="text-center col-span-4 text-red-500">Không có sản phẩm nào!</p>
+          <p className="text-center my-8 col-span-4 text-red-500 text-xl font-semibold">Không có sản phẩm phù hợp, bạn vui lòng chọn sản phẩm khác nhé.</p>
         )}
       </div>
       <AnimatePresence>
@@ -202,8 +202,8 @@ const ProductList = () => {
             <button
               key={index}
               onClick={() => setCurrentPage(index + 1)}
-              className={`px-4 py-2 border ${currentPage === index + 1 ? "bg-blue-500 text-white" : "bg-gray-200"
-                } rounded-lg hover:bg-blue-400 transition`}
+              className={`px-4 py-2 my-8 border  ${currentPage === index + 1 ? "bg-[#646edf] text-white font-bold" : "bg-white font-bold text-[#646edf] border-[#646edf]"
+                } rounded-full text-md hover:bg-[#646edf] hover:text-white hover:scale-105 transition duration-[350ms]`}
             >
               {index + 1}
             </button>
