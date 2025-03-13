@@ -111,12 +111,6 @@ const ProductList = () => {
   const itemInfo = (selectedProduct) => {
     setIsOpenInfo(!isOpenInfo)
     setSelectedProduct(selectedProduct)
-    // alert('Hehehe')
-    // alert(selectedProduct.name)
-  }
-
-  const addToCart = () => {
-    alert('Item added')
   }
 
   return (
@@ -190,7 +184,7 @@ const ProductList = () => {
                   <p className="text-gray-600">{product.price.toLocaleString()} VND</p>
                   <p className="text-gray-500">Màu: {product.color}</p>
                 </div>
-                <img src={cart} alt="" className='w-7 h-7 cursor-pointer ' onClick={() => addToCart} />
+                <img src={cart} alt="" className='w-7 h-7 cursor-pointer ' />
               </div>
             </div>
           ))
