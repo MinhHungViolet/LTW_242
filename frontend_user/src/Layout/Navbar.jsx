@@ -32,7 +32,7 @@ const Navbar = () => {
           <a href="" className='hover:text-[#495DE5] hover:font-bold hover:scale-105 
                                         transition-all duration-500 ease-out
                                         p-2'>Liên hệ</a>
-          <a href="" className='hover:text-[#495DE5] hover:font-bold hover:scale-105 
+          <a href="/introduction" className='hover:text-[#495DE5] hover:font-bold hover:scale-105 
                                         transition-all duration-500 ease-out
                                         p-2'>Giới thiệu</a>
         </div>
