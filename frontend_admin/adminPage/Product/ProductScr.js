@@ -71,7 +71,7 @@ function updatePagination() {
     let ul = document.createElement("ul");
     ul.className = "pagination pagination-primary justify-content-center";
 
-    // Tạo nút về trang đầu tiên nếu currentPage > 1
+    // Tạo nút về trang đầu tiên nếu currentPage >= 2
     if (currentPage > 1) {
         let firstPage = createPageItem(1, `<i class="bi bi-chevron-double-left"></i>`);
         let prevPage = createPageItem(currentPage - 1, `<i class="bi bi-chevron-left"></i>`);
