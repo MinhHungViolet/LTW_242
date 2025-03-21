@@ -34,10 +34,10 @@ let products = [
 const itemPerPage = 5;
 let currentPage = 1;
 
-function displayProducts(page) {
+function displayProducts(page, listProd) {
     let start = (page - 1) * itemPerPage;
     let end = start + itemPerPage;
-    let displayed = products.slice(start, end);
+    let displayed = listProd.slice(start, end);
 
     let tbody = document.getElementById("productTableBody");
     tbody.innerHTML = "";
@@ -71,7 +71,7 @@ function updatePagination() {
     let ul = document.createElement("ul");
     ul.className = "pagination pagination-primary justify-content-center";
 
-    // Tạo nút về trang đầu tiên nếu currentPage > 1
+    // Tạo nút về trang đầu tiên nếu currentPage >= 2
     if (currentPage > 1) {
         let firstPage = createPageItem(1, `<i class="bi bi-chevron-double-left"></i>`);
         let prevPage = createPageItem(currentPage - 1, `<i class="bi bi-chevron-left"></i>`);
@@ -113,7 +113,7 @@ function createPageItem(page, content) {
     a.onclick = function (e) {
         e.preventDefault();
         currentPage = page;
-        displayProducts(currentPage);
+        displayProducts(currentPage, products);
         updatePagination();
     };
     li.appendChild(a);
@@ -171,16 +171,16 @@ function saveProduct() {
     const color = document.getElementById("productColor").value;
     const image = document.getElementById("productImage").value;
     const prodId = document.getElementById("productModal").dataset.prodId;
-    
+
     if (prodId) {
-        products[prodId-1] = { id, name, price, category, color, image };
+        products[prodId - 1] = { id, name, price, category, color, image };
     } else {
         const newId = products.length ? products[products.length - 1].id + 1 : 1;
         products.push({ id: newId, name, price, category, color, image });
     }
 
     // renderProducts();
-    displayProducts(currentPage);
+    displayProducts(currentPage, products);
     bootstrap.Modal.getInstance(document.getElementById("productModal")).hide();
 }
 
@@ -189,11 +189,31 @@ function editProduct(prodId) {
 }
 
 function deleteProduct(idProduct) {
+    let indexToDelete = 0;
+    for (; indexToDelete < products.length; indexToDelete++) {
+        if (products[indexToDelete].id === idProduct) break;
+    }
+
     if (confirm("Bạn có chắc chắn muốn xóa sản phẩm này?")) {
-        products.splice(idProduct, 1);
+        products.splice(indexToDelete, 1);
         // renderProducts();
-        displayProducts(currentPage);
+        displayProducts(currentPage, products);
     }
 }
 
-document.addEventListener("DOMContentLoaded", displayProducts(1));
+function filterProducts() {
+    console.log("Check filter")
+    const category = document.getElementById("filterCategory").value;
+    const color = document.getElementById("filterColor").value;
+    const maxPrice = document.getElementById("filterPrice").value;
+
+    let filteredProducts = products.filter(i => {
+        return (category === "" || i.category === category)
+            && (color === "" || i.color === color)
+            && (maxPrice === "" || i.price <= parseInt(maxPrice));
+    })
+
+    displayProducts(1, filterProducts);
+}
+
+document.addEventListener("DOMContentLoaded", displayProducts(1, products));
