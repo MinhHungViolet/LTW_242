@@ -1,13 +1,12 @@
 import React from "react";
-import thumbnail from "../Images/thumbnail.png";
 import { FaRegSmile, FaBriefcase, FaShieldAlt } from "react-icons/fa";
 import NewsSection from "./NewsSection";
+import ImageSlider from "../Layout/IntroPic";
 
 const Introduction = () => {
   return (
     <div className="text-center">
-      <img src={thumbnail} alt="Thumbnail"  />
-
+      <ImageSlider />
       <div className="flex flex-col md:flex-row justify-center gap-6 p-10">
         <div className="bg-yellow-300 p-6 rounded-lg w-80 shadow-md flex items-center">
           <FaRegSmile size={100} className="mr-4 text-black" />
