@@ -10,7 +10,6 @@ const NewsSection = () => {
       title: "Linh hoạt",
       content:
         "Giao diện có giãn theo từng thiết bị để đảm bảo nội dung hiển thị hoàn toàn trong thiết bị của khách hàng, nội dung có bố cục rõ ràng, giúp khách hàng trải nghiệm tốt hơn, tin tưởng hơn, dễ dàng nhấn đặt hàng hoặc liên hệ với công ty bạn.",
-      
     },
     {
       id: 2,
@@ -58,7 +57,7 @@ const NewsSection = () => {
             <img src={item.image} alt={item.title} className="w-full h-48 object-cover" />
             <div className="p-4">
             <Link
-                to={`/introduction/news/${item.id}`}
+                to={`/news/${item.id}`}
                 className="font-bold text-xl mb-2 hover:text-blue-500"
               >
                 {item.title}
