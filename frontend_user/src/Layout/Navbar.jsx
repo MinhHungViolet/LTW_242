@@ -20,13 +20,13 @@ const Navbar = () => {
           <a href="" className='hover:text-[#495DE5] hover:font-bold hover:scale-105 
                                         transition-all duration-500 ease-out
                                         p-2'>Trang chủ</a>
-          <a href="" className='hover:text-[#495DE5] hover:font-bold hover:scale-105 
+          <a href="/purchase" className='hover:text-[#495DE5] hover:font-bold hover:scale-105 
                                         transition-all duration-500 ease-out
                                         p-2'>Sản phẩm</a>
           <a href="" className='hover:text-[#495DE5] hover:font-bold hover:scale-105 
                                         transition-all duration-500 ease-out
                                         p-2'>Bài viết</a>
-          <a href="" className='hover:text-[#495DE5] hover:font-bold hover:scale-105 
+          <a href="/question" className='hover:text-[#495DE5] hover:font-bold hover:scale-105 
                                         transition-all duration-500 ease-out
                                         p-2'>Hỏi đáp</a>
           <a href="" className='hover:text-[#495DE5] hover:font-bold hover:scale-105 
