@@ -1,6 +1,7 @@
 import React from "react";
 import Purchase from "../Product/Purchase";
 import Introduction from "../views/Introduction";
+import NewsSection from "../views/NewsSection";
 import NewsDetail from "../views/NewsDetail";
 import Question from "../views/Question";
 
@@ -16,6 +17,10 @@ const MainRoutes = [
     {
         path: "/introduction",
         element: <Introduction />,
+    },
+    {
+        path: "/news",
+        element: <NewsSection />,
     },
     {
         path: "/news/:id",
