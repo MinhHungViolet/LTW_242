@@ -182,7 +182,7 @@
         <!-- ================================================================================ -->
         <!-- Phần nội dung -->
 
-        <div id="main">
+        <div id="main" class="d-flex flex-column min-vh-100">
             <header class="mb-3">
                 <a href="#" class="burger-btn d-block d-xl-none">
                     <i class="bi bi-justify fs-3"></i>
@@ -193,28 +193,30 @@
                 <h3>Danh sách sản phẩm</h3>
             </div>
 
-            <div class="container">
+            <div class="container flex-grow-1">
                 <!-- Nút thêm sản phẩm -->
                 <button class="btn btn-primary mb-3" onclick="openModal()">Thêm sản phẩm</button>
                 <!-- Phần lọc sản phẩm -->
                 <div class="row mb-3">
                     <div class="col-md-4">
                         <label for="filterCategory" class="form-label">Danh mục:</label>
-                        <select class="form-control" id="filterCategory" onchange="filterProducts()">
+                        <!-- <select class="form-control" id="filterCategory" onchange="filterProducts()">
                             <option value="">Tất cả</option>
                             <option value="Áo sơ mi">Áo sơ mi</option>
                             <option value="Quần jeans">Quần jeans</option>
-                        </select>
+                        </select> -->
+                        <input type="text" class="form-control" id="filterCategory" oninput="filterProducts()">
                     </div>
                     <div class="col-md-4">
                         <label for="filterColor" class="form-label">Màu sắc:</label>
-                        <select class="form-control" id="filterColor" onchange="filterProducts()">
+                        <!-- <select class="form-control" id="filterColor" onchange="filterProducts()">
                             <option value="">Tất cả</option>
                             <option value="Trắng">Trắng</option>
                             <option value="Xanh">Xanh</option>
                             <option value="Đen">Đen</option>
                             <option value="Đỏ">Đỏ</option>
-                        </select>
+                        </select> -->
+                        <input type="text" class="form-control" id="filterColor" oninput="filterProducts()">
                     </div>
                     <div class="col-md-4">
                         <label for="filterPrice" class="form-label">Giá tối đa:</label>

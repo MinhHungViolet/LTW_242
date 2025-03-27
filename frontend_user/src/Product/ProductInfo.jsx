@@ -72,7 +72,8 @@ const ProductInfo = ({ selectedProduct, onClose }) => {
                     </div>
                     <button
                         className="mt-4 w-[12rem] bg-[#6877dd] text-white text-md font-bold py-2 rounded-full hover:bg-[#5564d6] hover:scale-[1.02] self-center transition-all duration-300"
-                        onClick={() => addToCart(selectedProduct, selectedProduct.category === "Giày" ? selectedShoesSize : selectedClothesSize, quantity)}
+                        // onClick={() => addToCart(selectedProduct, selectedProduct.category === "Giày" ? selectedShoesSize : selectedClothesSize, quantity)}
+                        onClick={onClose}
                     >
                         THÊM VÀO GIỎ HÀNG
                     </button>

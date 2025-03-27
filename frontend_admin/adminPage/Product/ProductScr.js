@@ -60,13 +60,20 @@ function displayProducts(page, listProd) {
             </tr>
         `;
     });
-    updatePagination();
+    updatePagination(listProd);
 }
 
-function updatePagination() {
-    let totalPages = Math.ceil(products.length / itemPerPage);
+function updatePagination(listProd) {
+    let totalPages = Math.ceil(listProd.length / itemPerPage);
     let paginationContainer = document.getElementById("pagination");
     paginationContainer.innerHTML = "";
+
+    if(totalPages <= 1){
+        paginationContainer.style.display = "none";
+        return;
+    }
+
+    paginationContainer.style.display = "block";
 
     let ul = document.createElement("ul");
     ul.className = "pagination pagination-primary justify-content-center";
@@ -103,7 +110,7 @@ function updatePagination() {
 }
 
 // Hàm tạo thẻ <li> chứa nút phân trang
-function createPageItem(page, content) {
+function createPageItem(page, content, listProd) {
     let li = document.createElement("li");
     li.className = "page-item";
     let a = document.createElement("a");
@@ -114,7 +121,7 @@ function createPageItem(page, content) {
         e.preventDefault();
         currentPage = page;
         displayProducts(currentPage, products);
-        updatePagination();
+        updatePagination(listProd);
     };
     li.appendChild(a);
     return li;
@@ -302,17 +309,24 @@ document.getElementById("confirmAction").addEventListener("click", function () {
 
 function filterProducts() {
     console.log("Check filter")
-    const category = document.getElementById("filterCategory").value;
-    const color = document.getElementById("filterColor").value;
-    const maxPrice = document.getElementById("filterPrice").value;
+    const category = document.getElementById("filterCategory").value.trim();
+    const color = document.getElementById("filterColor").value.trim();
+    const maxPrice = document.getElementById("filterPrice").value.trim();
 
-    let filteredProducts = products.filter(i => {
-        return (category === "" || i.category === category)
-            && (color === "" || i.color === color)
-            && (maxPrice === "" || i.price <= parseInt(maxPrice));
+    // let filteredProducts = products.filter(i => {
+    //     return (category === "" || i.category === category)
+    //         && (color === "" || i.color === color)
+    //         && (maxPrice === "" || i.price <= parseInt(maxPrice));
+    // })
+    let filteredProducts = products.filter(product => {
+        const matchCategory = category === "" || product.category.toString().includes(category);
+        const matchColor = color === "" || product.color.toString().includes(color);
+        const matchMaxPrice = maxPrice === "" || product.price <= parseFloat(maxPrice);
+
+        return matchCategory && matchColor && matchMaxPrice;
     })
 
-    displayProducts(1, filterProducts);
+    displayProducts(1, filteredProducts);
 }
 
 document.addEventListener("DOMContentLoaded", displayProducts(1, products));
