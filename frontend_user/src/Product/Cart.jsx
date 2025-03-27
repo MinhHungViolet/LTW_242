@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import prod from '../Images/product.png'
+import { useNavigate } from 'react-router-dom';
 
 const itemCart = [
     { id: 1, name: "Áo sơ mi 1", price: 200000, category: "Áo sơ mi", color: "Trắng", size: '2XL', quantity: 2 },
@@ -13,6 +14,7 @@ const itemCart = [
 ]
 
 const Cart = ({ onClose }) => {
+    const navigate = useNavigate();
     return (
         <>
             {/* Overlay để bắt sự kiện click ra ngoài */}
@@ -58,7 +60,8 @@ const Cart = ({ onClose }) => {
                     <p>Hehehe</p>
                 )}
                 <p className='text-lg font-semibold ml-2'>Tổng cộng: {itemCart.reduce((total, item) => total + item.price * item.quantity, 0).toLocaleString()} VND</p>
-                <button className='px-4 py-2 my-4 self-center text-md font-semibold rounded-full text-white bg-[#333333] hover:bg-black hover:scale-[1.02] duration-300 '>
+                <button className='px-4 py-2 my-4 self-center text-md font-semibold rounded-full text-white bg-[#333333] hover:bg-black hover:scale-[1.02] duration-300 '
+                onClick={() => {navigate("/purchase"); onClose();}}>
                     THANH TOÁN
                 </button>
             </motion.div>
