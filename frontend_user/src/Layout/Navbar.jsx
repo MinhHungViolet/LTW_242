@@ -20,7 +20,7 @@ const Navbar = () => {
           <a href="" className='hover:text-[#495DE5] hover:font-bold hover:scale-105 
                                         transition-all duration-500 ease-out
                                         p-2'>Trang chủ</a>
-          <a href="/purchase" className='hover:text-[#495DE5] hover:font-bold hover:scale-105 
+          <a href="/product" className='hover:text-[#495DE5] hover:font-bold hover:scale-105 
                                         transition-all duration-500 ease-out
                                         p-2'>Sản phẩm</a>
           <a href="" className='hover:text-[#495DE5] hover:font-bold hover:scale-105 
@@ -72,7 +72,7 @@ const Navbar = () => {
         <li className='w-full'><a href="" className='hover:text-[#495DE5] hover:font-bold hover:scale-105 hover:border-[#495DE5]
                                         transition-all duration-500 ease-out
                                         p-3 border-2 border-transparent flex flex-col items-center'>Trang chủ</a></li>
-        <li className='w-full'><a href="" className='hover:text-[#495DE5] hover:font-bold hover:scale-105 hover:border-[#495DE5] 
+        <li className='w-full'><a href="/product" className='hover:text-[#495DE5] hover:font-bold hover:scale-105 hover:border-[#495DE5] 
                                         transition-all duration-500 ease-out
                                         p-3 border-2 border-transparent flex flex-col items-center'>Sản phẩm</a></li>
         <li className='w-full'><a href="" className='hover:text-[#495DE5] hover:font-bold hover:scale-105 hover:border-[#495DE5]

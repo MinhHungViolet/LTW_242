@@ -4,6 +4,7 @@ import Introduction from "../views/Introduction";
 import NewsSection from "../views/NewsSection";
 import NewsDetail from "../views/NewsDetail";
 import Question from "../views/Question";
+import ProductList from "../Product/ProductList";
 
 const MainRoutes = [
     {
@@ -13,6 +14,10 @@ const MainRoutes = [
     {
         path: "/purchase",
         element: <Purchase />,
+    },
+    {
+        path: "/product",
+        element: <ProductList />
     },
     {
         path: "/introduction",
