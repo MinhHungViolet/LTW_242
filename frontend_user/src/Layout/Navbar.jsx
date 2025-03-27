@@ -23,7 +23,7 @@ const Navbar = () => {
           <a href="/product" className='hover:text-[#495DE5] hover:font-bold hover:scale-105 
                                         transition-all duration-500 ease-out
                                         p-2'>Sản phẩm</a>
-          <a href="" className='hover:text-[#495DE5] hover:font-bold hover:scale-105 
+          <a href="/news" className='hover:text-[#495DE5] hover:font-bold hover:scale-105 
                                         transition-all duration-500 ease-out
                                         p-2'>Bài viết</a>
           <a href="/question" className='hover:text-[#495DE5] hover:font-bold hover:scale-105 
@@ -75,16 +75,16 @@ const Navbar = () => {
         <li className='w-full'><a href="/product" className='hover:text-[#495DE5] hover:font-bold hover:scale-105 hover:border-[#495DE5] 
                                         transition-all duration-500 ease-out
                                         p-3 border-2 border-transparent flex flex-col items-center'>Sản phẩm</a></li>
-        <li className='w-full'><a href="" className='hover:text-[#495DE5] hover:font-bold hover:scale-105 hover:border-[#495DE5]
+        <li className='w-full'><a href="/news" className='hover:text-[#495DE5] hover:font-bold hover:scale-105 hover:border-[#495DE5]
                                         transition-all duration-500 ease-out
                                         p-3 border-2 border-transparent flex flex-col items-center'>Bài viết</a></li>
-        <li className='w-full'><a href="" className='hover:text-[#495DE5] hover:font-bold hover:scale-105 hover:border-[#495DE5]
+        <li className='w-full'><a href="/question" className='hover:text-[#495DE5] hover:font-bold hover:scale-105 hover:border-[#495DE5]
                                         transition-all duration-500 ease-out
                                         p-3 border-2 border-transparent flex flex-col items-center'>Hỏi đáp</a></li>
         <li className='w-full'><a href="" className='hover:text-[#495DE5] hover:font-bold hover:scale-105 hover:border-[#495DE5]
                                         transition-all duration-500 ease-out
                                         p-3 border-2 border-transparent flex flex-col items-center'>Liên hệ</a></li>
-        <li className='w-full'><a href="" className='hover:text-[#495DE5] hover:font-bold hover:scale-105 hover:border-[#495DE5]
+        <li className='w-full'><a href="/introduction" className='hover:text-[#495DE5] hover:font-bold hover:scale-105 hover:border-[#495DE5]
                                         transition-all duration-500 ease-out
                                         p-3 border-2 border-transparent flex flex-col items-center'>Giới thiệu</a></li>
 
