@@ -17,7 +17,7 @@ const Navbar = () => {
       <div className="bg-white flex flex-row items-center justify-between p-2 shadow-md ">
         {/* Page - Desktop */}
         <div className="hidden lg:flex flex-row justify-between w-[36rem] ml-5 text-[#3f3f3e] text-lg font-semibold ">
-          <a href="" className='hover:text-[#495DE5] hover:font-bold hover:scale-105 
+          <a href="/" className='hover:text-[#495DE5] hover:font-bold hover:scale-105 
                                         transition-all duration-500 ease-out
                                         p-2'>Trang chủ</a>
           <a href="/product" className='hover:text-[#495DE5] hover:font-bold hover:scale-105 
@@ -69,7 +69,7 @@ const Navbar = () => {
         className="lg:hidden absolute top-full left-0 w-full origin-top flex flex-col items-center 
                 bg-white text-xl font-semibold shadow-lg z-50">
 
-        <li className='w-full'><a href="" className='hover:text-[#495DE5] hover:font-bold hover:scale-105 hover:border-[#495DE5]
+        <li className='w-full'><a href="/" className='hover:text-[#495DE5] hover:font-bold hover:scale-105 hover:border-[#495DE5]
                                         transition-all duration-500 ease-out
                                         p-3 border-2 border-transparent flex flex-col items-center'>Trang chủ</a></li>
         <li className='w-full'><a href="/product" className='hover:text-[#495DE5] hover:font-bold hover:scale-105 hover:border-[#495DE5] 
