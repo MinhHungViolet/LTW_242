@@ -1,14 +1,15 @@
 import { useState } from 'react';
 import pro from '../Images/product.png'
 import { motion } from 'framer-motion';
+import { saveCartToCookie, getCartFromCookie } from '../Utils/cartUtils';
 
 const clothesSize = ['2XL', 'XL', 'L', 'M', 'S']
 const shoesSize = ['43', '42', '41', '40', '39', '38', '37', '36', '35']
 
 const ProductInfo = ({ selectedProduct, onClose }) => {
-    const [orderItems, setOrderItems] = useState([
-        { item: {}, size: "", quantity: 0 }
-    ])
+    // const [orderItems, setOrderItems] = useState([
+    //     { item: {}, size: "", quantity: 0 }
+    // ])
 
     const [selectedClothesSize, setSelectedClothesSize] = useState('2XL')
     const [selectedShoesSize, setSelectedShoesSize] = useState('43')
@@ -18,10 +19,29 @@ const ProductInfo = ({ selectedProduct, onClose }) => {
         setter(value)
     }
 
-    const addToCart = (prod, size, quantity) => {
-        const isExisted = orderItems.find((i) => i.prod.name === prod.name && i.prod.name === prod.size);
-        if (isExisted) orderItems.map((i) => (i.prod.name === prod.name && i.prod.name === prod.size) ? { ...i, quantity: i.quantity + prod.quantity } : i)
-        else setOrderItems([...orderItems, { prod, size, quantity }])
+    const addToCart = () => {
+        const selectedSize = selectedProduct.category === "Giày" ? selectedShoesSize : selectedClothesSize;
+        const newCartItem = {
+            id: selectedProduct.id,
+            name: selectedProduct.name,
+            price: selectedProduct.price,
+            category: selectedProduct.category,
+            color: selectedProduct.color,
+            size: selectedSize,
+            quantity: parseInt(quantity)
+        };
+        let cart = getCartFromCookie();
+
+        const existingIndex = cart.findIndex(item => item.id === newCartItem.id && item.size === newCartItem.size);
+        if (existingIndex !== -1) {
+            cart[existingIndex].quantity += newCartItem.quantity;
+        }
+        else {
+            cart.push(newCartItem);
+        }
+
+        saveCartToCookie(cart);
+        onClose();
     }
     return (
         <div
@@ -73,7 +93,7 @@ const ProductInfo = ({ selectedProduct, onClose }) => {
                     <button
                         className="mt-4 w-[12rem] bg-[#6877dd] text-white text-md font-bold py-2 rounded-full hover:bg-[#5564d6] hover:scale-[1.02] self-center transition-all duration-300"
                         // onClick={() => addToCart(selectedProduct, selectedProduct.category === "Giày" ? selectedShoesSize : selectedClothesSize, quantity)}
-                        onClick={onClose}
+                        onClick={addToCart}
                     >
                         THÊM VÀO GIỎ HÀNG
                     </button>

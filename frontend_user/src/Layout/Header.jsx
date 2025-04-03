@@ -18,9 +18,9 @@ const Header = () => {
         <div className="bg-[#111111] h-[10vh] flex flex-row items-center justify-between ">
             <p className="text-white text-2xl font-bold ml-10">TÊN CÔNG TY</p>
             {user ? (
-                <div>
+                <div className="flex flex-row align-center mr-7">
                     <p className="text-white">Xin chào, {user.username}!</p>
-                    <button onClick={logout} className="ml-4 bg-red-500 px-2 py-1 rounded">Đăng xuất</button>
+                    <button onClick={logout} className="ml-4 text-white underline">Đăng xuất</button>
                 </div>
             ) : (
                 <div>

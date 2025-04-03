@@ -9,7 +9,7 @@ import Linkedin from '../Images/Linkedin.png'
 const Footer = () => {
 
     return (
-        <div className="bg-[#111111] text-white max-sm:text-blue-400 max-lg:text-red-400 px-10 py-5 max-sm:p-5
+        <div className="bg-[#111111] text-white px-10 py-5 max-sm:p-5
                         flex flex-col justify-between ">
             {/* Info */}
             <div className="flex flex-row justify-between h-[20vh] mb-12 max-lg:flex-col max-lg:mb-28">
@@ -58,10 +58,9 @@ const Footer = () => {
                     </div>
                 </div>
             </div>
-            <hr className='mb-4 max-lg:mb-8' />
+
             {/* Contact */}
-            <div className="flex flex-col
-                            text-md">
+            <div className="flex flex-col text-md mt-8">
                 <p>Về những vấn đề khác, vui lòng liên hệ: Mr Quốc Đạt</p>
                 <p>Email: <a href="https://mail.google.com/mail/u/0/?view=cm&fs=1&to=dat.nguyenquoc22itbk@hcmut.edu.vn" target="_blank">dat.nguyenquoc22itbk@hcmut.edu.vn</a></p>
                 <p>Tel: 0123456789</p>

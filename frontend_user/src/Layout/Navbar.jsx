@@ -2,13 +2,21 @@ import cart from '../Images/cart.png'
 import avatar from '../Images/avatar.png'
 import { X, Menu } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from 'react-router-dom';
 import Cart from '../Product/Cart';
+import { getCartFromCookie } from '../Utils/cartUtils';
 
 const Navbar = () => {
+  const navigate = useNavigate();
   const [isOpenNav, setIsOpenNav] = useState(false);
-
   const [isOpenCart, setIsOpenCart] = useState(false);
+  const [cartCount, setCartCount] = useState(0);
+
+  useEffect(() => {
+    const cartItems = getCartFromCookie();
+    setCartCount(cartItems.reduce((total, item) => total + item.quantity, 0));
+  }, [isOpenCart])
   const openCart = () => {
     setIsOpenCart(!isOpenCart);
   }
@@ -44,9 +52,16 @@ const Navbar = () => {
           {isOpenNav ? <X size={30} className='ml-5' /> : <Menu size={30} className='ml-5' />}
         </button>
         {/* Icon */}
-        <div className='flex flex-row mr-10 items-center justify-evenly w-[8rem]'>
-          <img src={cart} alt="" className='w-7 h-7 cursor-pointer ' onClick={() => openCart()} />
-          <img src={avatar} alt="" className='w-8 h-8 rounded-full ' />
+        <div className='flex flex-row mr-0 items-center justify-evenly w-[8rem]'>
+          <div className='relative cursor-pointer' onClick={openCart}>
+            <img src={cart} alt="" className='w-7 h-7 cursor-pointer ' onClick={() => openCart()} />
+            {cartCount > 0 && (
+              <span className='absolute -top-2 -right-2 bg-red-500 text-white text-xs font-medium w-5 h-5 flex items-center justify-center rounded-md'>
+                {cartCount}
+              </span>
+            )}
+          </div>
+          <img src={avatar} alt="" className='w-8 h-8 rounded-full cursor-pointer ' onClick={() => navigate("/user")} />
         </div>
 
         {isOpenCart && (<Cart onClose={() => openCart()}></Cart>)}
@@ -63,7 +78,7 @@ const Navbar = () => {
         // animate={isOpenNav ? { scaleY: 1, opacity: 1 } : { scaleY: 0, opacity: 0 }}
         // transition={{ duration: 0.3, ease: "easeOut" }}
         initial={{ x: "-100%", opacity: 0 }}  // Bắt đầu từ ngoài màn hình (bên phải)
-        animate={isOpenNav ? { x: 0, opacity: 1 } : {x: "-100%", opacity: 0}}       // Trượt vào
+        animate={isOpenNav ? { x: 0, opacity: 1 } : { x: "-100%", opacity: 0 }}       // Trượt vào
         exit={{ x: "-100%", opacity: 0 }}      // Trượt ra ngoài
         transition={{ duration: 0.4, ease: "easeOut" }}
         className="lg:hidden absolute top-full left-0 w-full origin-top flex flex-col items-center 
