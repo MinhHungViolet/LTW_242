@@ -5,11 +5,15 @@ import NewsSection from "../views/NewsSection";
 import NewsDetail from "../views/NewsDetail";
 import Question from "../views/Question";
 import ProductList from "../Product/ProductList";
+import Home from "../HomePage/Home";
+import UserInfo from "../UserInfo/UserInfo";
+
 
 const MainRoutes = [
     {
         path: "/",
-        element: <Introduction />,
+        // element: <Introduction />,
+        element: <Home />
     },
     {
         path: "/purchase",
@@ -34,7 +38,11 @@ const MainRoutes = [
     {
         path: "/question",
         element: <Question />,
-    }
+    },
+    {
+        path: "/user",
+        element: <UserInfo />
+    },
 ];
 
 export default MainRoutes;

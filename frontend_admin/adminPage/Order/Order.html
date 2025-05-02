@@ -183,7 +183,7 @@
         <!-- ================================================================================ -->
         <!-- Phần nội dung -->
 
-        <div id="main">
+        <div id="main" class="d-flex flex-column min-vh-100">
             <header class="mb-3">
                 <a href="#" class="burger-btn d-block d-xl-none">
                     <i class="bi bi-justify fs-3"></i>
@@ -194,7 +194,7 @@
                 <h3>Danh sách đơn hàng</h3>
             </div>
 
-            <div class="container">
+            <div class="container flex-grow-1">
 
                 <div class="row mb-3">
                     <div class="col-md-4">
@@ -202,12 +202,9 @@
                         <input type="number" class="form-control" id="filterOrderId" oninput="filterOrders()">
                     </div>
                     <div class="col-md-4">
-                        <label for="filterCategory" class="form-label">Danh mục sản phẩm:</label>
-                        <select class="form-control" id="filterCategory" onchange="filterOrders()">
-                            <option value="">Tất cả</option>
-                            <option value="Áo sơ mi">Áo sơ mi</option>
-                            <option value="Quần jeans">Quần jeans</option>
-                        </select>
+                        <label for="filterCategory" class="form-label">Số điện thoại khách hàng:</label>
+                        <input type="tel" maxlength="10" class="form-control" id="filterPhoneNum" oninput="this.value = this.value.replace(/[^0-9]/g, ''); filterOrders()">
+
                     </div>
                     <div class="col-md-4">
                         <label for="filterPrice" class="form-label">Giá tối đa:</label>
@@ -215,8 +212,8 @@
                     </div>
                 </div>
 
-                <div class="rounded border border-light overflow-hidden">
-                    <table class="table table-bordered border border-light mb-0">
+                <div id="tableBorder" class="rounded border border-light overflow-hidden">
+                    <table id="tableOrder" class="table table-bordered border border-light mb-0">
                         <thead>
                             <tr>
                                 <th class="col-1 text-center">Mã đơn hàng</th>
@@ -256,7 +253,7 @@
 
 
 
-            <footer>
+            <footer class="position">
                 <div class="footer clearfix mb-0 text-muted">
                     <div class="float-start">
                         <p>2023 &copy; Mazer</p>

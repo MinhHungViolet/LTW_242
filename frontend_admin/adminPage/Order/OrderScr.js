@@ -55,7 +55,7 @@ let orders = [
         ],
         customer: {
             cus_name: "Nguyen Quoc Dat",
-            phone_num: "0393943968",
+            phone_num: "0123456789",
             addr: "Dong Hoa, Di An, Binh Duong"
         },
         status: "Dangling"
@@ -242,19 +242,25 @@ function displayOrders(page, listOrder) {
             </tr>
         `;
     });
-
-    updatePagination();
+    console.log("Im here");
+    updatePagination(listOrder);
 }
 
+function updatePagination(listOrders) {
 
-
-
-
-function updatePagination() {
-    let totalPages = Math.ceil(orders.length / itemPerPage);
+    let totalPages = Math.ceil(listOrders.length / itemPerPage);
+    console.log("Total pages: ", totalPages);
     let paginationContainer = document.getElementById("pagination");
+
     paginationContainer.innerHTML = "";
 
+    if(totalPages <= 1) {
+        console.log("Hehehe")
+        paginationContainer.style.display = "none";
+        return;
+    }
+
+    paginationContainer.style.display = "block";
     let ul = document.createElement("ul");
     ul.className = "pagination pagination-primary justify-content-center";
 
@@ -290,7 +296,8 @@ function updatePagination() {
 }
 
 // Hàm tạo thẻ <li> chứa nút phân trang
-function createPageItem(page, content) {
+function createPageItem(page, content, listOrders) {
+
     let li = document.createElement("li");
     li.className = "page-item";
     let a = document.createElement("a");
@@ -301,7 +308,7 @@ function createPageItem(page, content) {
         e.preventDefault();
         currentPage = page;
         displayOrders(currentPage, orders);
-        updatePagination();
+        updatePagination(listOrders);
     };
     li.appendChild(a);
     return li;
@@ -361,5 +368,22 @@ document.getElementById("confirmAction").addEventListener("click", function () {
         modal.hide();
     }
 })
+
+function filterOrders() {
+    console.log("Check: ")
+    const id = document.getElementById("filterOrderId").value.trim();
+    const phoneNum = document.getElementById("filterPhoneNum").value.trim();
+    const maxPrice = document.getElementById("filterPrice").value.trim();
+
+    let filteredOrders = orders.filter(order => {
+        const matchOrderId = id === "" || order.orderId.toString() == id;
+        const matchPhoneNum = phoneNum === "" || order.customer.phone_num == phoneNum;
+        let totalOrderPrice = order.products.reduce((total, product) => total + (product.price * product.quantity), 0);
+        const matchMaxPrice = maxPrice === "" || totalOrderPrice <= parseFloat(maxPrice);
+        return matchOrderId && matchPhoneNum && matchMaxPrice;
+    });
+
+    displayOrders(1, filteredOrders);
+}
 
 document.addEventListener("DOMContentLoaded", displayOrders(1, orders));
