@@ -9,32 +9,22 @@ export const AuthProvider = ({ children }) => {
 
     // Kiểm tra localStorage khi load lại trang
     useEffect(() => {
-        const storedUser = localStorage.getItem("username");
-        const storedRole = localStorage.getItem("role");
+        const storedUser = localStorage.getItem("user");
         if (storedUser) {
-            setUser({ username: storedUser, role: storedRole });
+            setUser(JSON.parse(storedUser));
         }
     }, []);
 
     // Hàm đăng nhập
-    const login = (username, role) => {
-        setUser({ username, role });
-        localStorage.setItem("username", username);
-        localStorage.setItem("role", role);
-        setTimeout(() => {
-            window.location.reload();
-        }, 100);
+    const login = (userData) => {
+        setUser(userData);
+        localStorage.setItem("user", JSON.stringify(userData));
     };
 
     // Hàm đăng xuất
     const logout = () => {
-        localStorage.removeItem("username");
-        localStorage.removeItem("role");
+        localStorage.removeItem("user");
         setUser(null);
-
-        setTimeout(() => {
-            window.location.href = "/"; // Điều hướng về trang chủ và reload trang
-        }, 100); // Delay nhẹ để đảm bảo AuthContext cập nhật
     };
 
     return (

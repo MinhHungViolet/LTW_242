@@ -1,11 +1,13 @@
-import LoginPage from "../Login_Register/LoginPage";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from "../contexts/AuthContext";
+import LoginPage from "../Login_Register/LoginPage";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Header = () => {
-    const {user, logout} = useAuth();
+    const { user, logout } = useAuth() || {};
     const navigate = useNavigate();
     const [isClickedLogin, setIsClickedLogin] = useState(false);
 
@@ -13,14 +15,22 @@ const Header = () => {
         setIsClickedLogin(prev => !prev);
     };
 
+    const handleLogout = () => {
+        logout();
+        setIsClickedLogin(false); // Đảm bảo modal login đóng khi logout
+    };
+
+    console.log("Người dùng header", user);
 
     return (
-        <div className="bg-[#111111] h-[10vh] flex flex-row items-center justify-between ">
+        <div className="bg-[#111111] h-[10vh] flex flex-row items-center justify-between">
             <p className="text-white text-2xl font-bold ml-10">TÊN CÔNG TY</p>
             {user ? (
-                <div className="flex flex-row align-center mr-7">
-                    <p className="text-white">Xin chào, {user.username}!</p>
-                    <button onClick={logout} className="ml-4 text-white underline">Đăng xuất</button>
+                <div className="flex flex-row items-center mr-7">
+                    <p className="text-white">Xin chào, {user.name || 'Người dùng'}!</p>
+                    <button onClick={handleLogout} className="ml-4 text-white underline">
+                        Đăng xuất
+                    </button>
                 </div>
             ) : (
                 <div>
@@ -38,7 +48,17 @@ const Header = () => {
                     </AnimatePresence>
                 </div>
             )}
-
+            <ToastContainer
+                position="top-right"
+                autoClose={2000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+            />
         </div>
     );
 };
