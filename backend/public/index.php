@@ -15,6 +15,9 @@ require_once __DIR__ . '/../src/Database/Connection.php';
 require_once __DIR__ . '/../src/Controllers/ProductController.php';
 require_once __DIR__ . '/../src/Controllers/AuthController.php'; 
 require_once __DIR__ . '/../src/helpers.php'; 
+require_once __DIR__ . '/../src/Controllers/AdminController.php';
+require_once __DIR__ . '/../src/Controllers/CartController.php';
+require_once __DIR__ . '/../src/Controllers/OrderController.php';
 
 $pdo = Connection::getInstance();
 
@@ -106,6 +109,119 @@ elseif (!empty($pathSegments[0]) && ($pathSegments[0] === 'register' || $pathSeg
           echo json_encode(['error' => 'Phương thức không hợp lệ cho endpoint này.']);
      }
 }
+elseif (!empty($pathSegments[0]) && $pathSegments[0] === 'admin') {
+
+    // --- BẮT BUỘC XÁC THỰC VÀ KIỂM TRA QUYỀN ADMIN CHO TẤT CẢ ROUTE /admin/* ---
+    $userData = authenticate(); // Gọi hàm xác thực JWT (đã tạo ở bước trước)
+    // Kiểm tra xem $userData có tồn tại không VÀ role có phải là 'admin' không
+    if (!$userData || !isset($userData->role) || $userData->role !== 'admin') {
+        http_response_code(403); // Forbidden
+        echo json_encode(['error' => 'Truy cập bị từ chối. Yêu cầu quyền Admin.']);
+        exit(); // Dừng lại ngay nếu không phải Admin
+    }
+    // --- KẾT THÚC KIỂM TRA QUYỀN ---
+
+    // Nếu đã qua được kiểm tra quyền Admin:
+    $adminController = new AdminController($pdo); // Khởi tạo AdminController
+
+    // Phân tích route con dưới /admin (ví dụ: /admin/users)
+    if (!empty($pathSegments[1]) && $pathSegments[1] === 'users') {
+
+        // Xử lý /admin/users/{userId}
+        if (isset($pathSegments[2]) && is_numeric($pathSegments[2])) {
+            $userIdToDelete = (int)$pathSegments[2];
+            if ($requestMethod === 'DELETE') {
+                // Lấy ID của admin đang đăng nhập từ token để kiểm tra tự xóa
+                $loggedInUserId = $userData->userId ?? 0; // Lấy userId từ payload JWT
+                $adminController->deleteUser($userIdToDelete, $loggedInUserId);
+            } else {
+                http_response_code(405); // Method Not Allowed
+                echo json_encode(['error' => 'Phương thức không hỗ trợ cho /admin/users/{id}. Chỉ hỗ trợ DELETE.']);
+            }
+        }
+        // Xử lý /admin/users (không có ID)
+        elseif (!isset($pathSegments[2])) {
+            if ($requestMethod === 'POST') {
+                $adminController->createUser();
+            } elseif ($requestMethod === 'GET') { // <<< THÊM ĐIỀU KIỆN NÀY
+                $adminController->getAllUsers();  // <<< GỌI HÀM MỚI
+            } else {
+                 http_response_code(405); // Method Not Allowed
+                 // Cập nhật thông báo lỗi cho rõ ràng hơn
+                 echo json_encode(['error' => 'Phương thức không hỗ trợ cho /admin/users. Chỉ hỗ trợ POST, GET.']);
+            }
+        }
+        // URL không hợp lệ dưới /admin/users/
+        else {
+            http_response_code(400);
+            echo json_encode(['error' => 'ID người dùng không hợp lệ trong URL /admin/users/.']);
+        }
+    }
+    // Thêm các route admin khác ở đây (ví dụ: /admin/orders) nếu cần
+    // else if (!empty($pathSegments[1]) && $pathSegments[1] === 'orders') { ... }
+    else {
+         // Route con không xác định dưới /admin
+         http_response_code(404);
+         echo json_encode(['error' => 'Endpoint admin không tồn tại.']);
+    }
+}
+elseif (!empty($pathSegments[0]) && $pathSegments[0] === 'cart') {
+    // --- Yêu cầu xác thực cho tất cả route /cart ---
+    $userData = authenticate();
+    if (!$userData) {
+        // Hàm authenticate đã xử lý trả lỗi 401 và exit()
+        // Dòng này chỉ để rõ ràng là cần userData
+         exit();
+    }
+    // -------------------------
+
+    $cartController = new CartController($pdo);
+
+    // Xử lý GET /cart (không có segment con)
+    if ($requestMethod === 'GET' && !isset($pathSegments[1])) {
+         $cartController->getCart($userData); // <<< GỌI HÀM MỚI
+    }
+    // Xử lý POST /cart/items (giữ nguyên)
+    elseif (!empty($pathSegments[1]) && $pathSegments[1] === 'items') {
+        if ($requestMethod === 'POST') {
+             $cartController->addItem($userData);
+        } else {
+             http_response_code(405);
+             echo json_encode(['error' => 'Phương thức không hỗ trợ cho /cart/items. Chỉ hỗ trợ POST.']);
+        }
+    }
+    // Các route con khác của /cart không được hỗ trợ
+    else {
+         http_response_code(404);
+         echo json_encode(['error' => 'Endpoint giỏ hàng không hợp lệ.']);
+    }
+} // *** KẾT THÚC ROUTE CART ***
+
+
+// *** THÊM ROUTE MỚI CHO ORDERS ***
+elseif (!empty($pathSegments[0]) && $pathSegments[0] === 'orders') {
+    // --- Yêu cầu xác thực cho tất cả route /orders ---
+    $userData = authenticate();
+    if (!$userData) {
+         exit(); // authenticate() đã xử lý lỗi
+    }
+    // -------------------------
+
+    $orderController = new OrderController($pdo);
+
+    // Xử lý POST /orders (tạo đơn hàng - giữ nguyên)
+    if ($requestMethod === 'POST' && !isset($pathSegments[1])) {
+         $orderController->createOrder($userData);
+    }
+    // Xử lý GET /orders (lấy lịch sử - THÊM MỚI)
+    elseif ($requestMethod === 'GET' && !isset($pathSegments[1])) {
+          $orderController->getOrderHistory($userData); // <<< GỌI HÀM MỚI
+    }
+    else {
+         http_response_code(405); // Hoặc 404
+         echo json_encode(['error' => 'Phương thức hoặc endpoint đơn hàng không hợp lệ.']);
+    }
+} // *** KẾT THÚC ROUTE ORDERS ***
 // Route không tồn tại
 else {
     http_response_code(404);

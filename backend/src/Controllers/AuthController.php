@@ -1,8 +1,8 @@
 <?php
 // src/Controllers/AuthController.php
 
-use PDO;
-use PDOException;
+// use PDO;
+// use PDOException;
 use Firebase\JWT\JWT; // Import lớp JWT
 use Firebase\JWT\Key;  // Import lớp Key (dùng cho phiên bản mới của php-jwt)
 
