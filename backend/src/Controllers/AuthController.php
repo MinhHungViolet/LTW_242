@@ -35,7 +35,7 @@ class AuthController {
     }
 
     // Hàm tạo JWT (sẽ thêm ở Bước 3)
-    private function createJwt(int $userId, string $email, string $role): string {
+    private function createJwt(int $userId, string $email, string $role, string $name): string {
         $issuedAt = time();
         $expirationTime = $issuedAt + (60 * 60 * 24 * 7); // Token hết hạn sau 7 ngày (ví dụ)
         // Bạn có thể đặt thời gian hết hạn ngắn hơn (vd: 1 giờ) và dùng Refresh Token nếu cần bảo mật cao hơn
@@ -47,7 +47,8 @@ class AuthController {
             'exp' => $expirationTime,    // Expiration Time: Thời điểm hết hạn
             'userId' => $userId,         // Dữ liệu người dùng
             'email' => $email,
-            'role' => $role
+            'role' => $role,
+            'name' => $name
         ];
     
         // Encode thành JWT dùng khóa bí mật và thuật toán HS256
@@ -180,7 +181,7 @@ class AuthController {
             // 2. Kiểm tra mật khẩu
             if (password_verify($password, $user['password'])) {
                 // Mật khẩu đúng -> Tạo JWT
-                $token = $this->createJwt($user['userId'], $user['email'], $user['role']);
+                $token = $this->createJwt($user['userId'], $user['email'], $user['role'], name: $user['name']);
     
                 // Trả về token và thông tin user cơ bản
                 $this->sendResponse(200, [
