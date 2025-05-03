@@ -112,8 +112,7 @@ elseif (!empty($pathSegments[0]) && ($pathSegments[0] === 'register' || $pathSeg
 elseif (!empty($pathSegments[0]) && $pathSegments[0] === 'admin') {
 
     // --- BẮT BUỘC XÁC THỰC VÀ KIỂM TRA QUYỀN ADMIN CHO TẤT CẢ ROUTE /admin/* ---
-    $userData = authenticate(); // Gọi hàm xác thực JWT (đã tạo ở bước trước)
-    // Kiểm tra xem $userData có tồn tại không VÀ role có phải là 'admin' không
+    $userData = authenticate(); // Gọi hàm xác thực JWT
     if (!$userData || !isset($userData->role) || $userData->role !== 'admin') {
         http_response_code(403); // Forbidden
         echo json_encode(['error' => 'Truy cập bị từ chối. Yêu cầu quyền Admin.']);
@@ -122,20 +121,23 @@ elseif (!empty($pathSegments[0]) && $pathSegments[0] === 'admin') {
     // --- KẾT THÚC KIỂM TRA QUYỀN ---
 
     // Nếu đã qua được kiểm tra quyền Admin:
-    $adminController = new AdminController($pdo); // Khởi tạo AdminController
+    // Khởi tạo AdminController một lần để dùng chung
+    $adminController = new AdminController($pdo);
 
-    // Phân tích route con dưới /admin (ví dụ: /admin/users)
-    if (!empty($pathSegments[1]) && $pathSegments[1] === 'users') {
+    // Phân tích tài nguyên con dưới /admin (ví dụ: users, orders)
+    $adminResource = $pathSegments[1] ?? null; // Lấy segment thứ 2 (users, orders,...)
+
+    // Xử lý dựa trên tài nguyên con
+    if ($adminResource === 'users') {
 
         // Xử lý /admin/users/{userId}
         if (isset($pathSegments[2]) && is_numeric($pathSegments[2])) {
             $userIdToDelete = (int)$pathSegments[2];
             if ($requestMethod === 'DELETE') {
-                // Lấy ID của admin đang đăng nhập từ token để kiểm tra tự xóa
-                $loggedInUserId = $userData->userId ?? 0; // Lấy userId từ payload JWT
+                $loggedInUserId = $userData->userId ?? 0;
                 $adminController->deleteUser($userIdToDelete, $loggedInUserId);
             } else {
-                http_response_code(405); // Method Not Allowed
+                http_response_code(405);
                 echo json_encode(['error' => 'Phương thức không hỗ trợ cho /admin/users/{id}. Chỉ hỗ trợ DELETE.']);
             }
         }
@@ -143,12 +145,11 @@ elseif (!empty($pathSegments[0]) && $pathSegments[0] === 'admin') {
         elseif (!isset($pathSegments[2])) {
             if ($requestMethod === 'POST') {
                 $adminController->createUser();
-            } elseif ($requestMethod === 'GET') { // <<< THÊM ĐIỀU KIỆN NÀY
-                $adminController->getAllUsers();  // <<< GỌI HÀM MỚI
+            } elseif ($requestMethod === 'GET') {
+                $adminController->getAllUsers(); // Gọi hàm lấy tất cả user
             } else {
-                 http_response_code(405); // Method Not Allowed
-                 // Cập nhật thông báo lỗi cho rõ ràng hơn
-                 echo json_encode(['error' => 'Phương thức không hỗ trợ cho /admin/users. Chỉ hỗ trợ POST, GET.']);
+                http_response_code(405);
+                echo json_encode(['error' => 'Phương thức không hỗ trợ cho /admin/users. Chỉ hỗ trợ POST, GET.']);
             }
         }
         // URL không hợp lệ dưới /admin/users/
@@ -156,14 +157,49 @@ elseif (!empty($pathSegments[0]) && $pathSegments[0] === 'admin') {
             http_response_code(400);
             echo json_encode(['error' => 'ID người dùng không hợp lệ trong URL /admin/users/.']);
         }
-    }
-    // Thêm các route admin khác ở đây (ví dụ: /admin/orders) nếu cần
-    // else if (!empty($pathSegments[1]) && $pathSegments[1] === 'orders') { ... }
+
+    } // Kết thúc xử lý /admin/users
+
+    // *** BỔ SUNG XỬ LÝ CHO /admin/orders ***
+    elseif ($adminResource === 'orders') {
+
+         // Xử lý /admin/orders/{orderId}/status
+         // Kiểm tra có 4 segment: admin, orders, {id}, status
+         if (isset($pathSegments[2]) && is_numeric($pathSegments[2]) && isset($pathSegments[3]) && $pathSegments[3] === 'status') {
+             $orderId = (int)$pathSegments[2];
+             if ($requestMethod === 'PUT') {
+                 $adminController->updateOrderStatus($orderId); // Gọi hàm cập nhật status
+             } else {
+                 http_response_code(405);
+                 echo json_encode(['error' => 'Phương thức không hỗ trợ cho /admin/orders/{id}/status. Chỉ hỗ trợ PUT.']);
+             }
+         }
+         // Xử lý /admin/orders (không có ID hay /status)
+         elseif (!isset($pathSegments[2])) {
+              if ($requestMethod === 'GET') {
+                  $adminController->getAllOrders(); // Gọi hàm lấy tất cả order
+              } else {
+                  http_response_code(405);
+                  echo json_encode(['error' => 'Phương thức không hỗ trợ cho /admin/orders. Chỉ hỗ trợ GET.']);
+              }
+         }
+         // URL không hợp lệ dưới /admin/orders
+         else {
+              http_response_code(404);
+              echo json_encode(['error' => 'Endpoint admin orders không hợp lệ.']);
+         }
+
+    } // *** KẾT THÚC BỔ SUNG /admin/orders ***
+
+    // Thêm các tài nguyên admin khác ở đây nếu cần (ví dụ: /admin/products)
+    // elseif ($adminResource === 'products') { ... }
+
     else {
-         // Route con không xác định dưới /admin
+         // Tài nguyên admin không xác định (ví dụ: /admin/settings)
          http_response_code(404);
-         echo json_encode(['error' => 'Endpoint admin không tồn tại.']);
+         echo json_encode(['error' => "Tài nguyên admin '{$adminResource}' không tồn tại."]);
     }
+
 }
 elseif (!empty($pathSegments[0]) && $pathSegments[0] === 'cart') {
     // --- Yêu cầu xác thực cho tất cả route /cart ---
