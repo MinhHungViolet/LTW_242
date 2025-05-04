@@ -69,14 +69,6 @@ const UserInfo = () => {
                 <input type="date" name="birthDate" value={user.birthDate} onChange={handleChange} className="w-full border p-2 rounded-md mt-1" />
             </div>
             <div className="mt-4">
-                <label className="block text-sm font-medium">Giới tính</label>
-                <select name="gender" value={user.gender} onChange={handleChange} className="w-full border p-2 rounded-md mt-1">
-                    <option value="Nam">Nam</option>
-                    <option value="Nữ">Nữ</option>
-                    <option value="Khác">Khác</option>
-                </select>
-            </div>
-            <div className="mt-4">
                 <label className="block text-sm font-medium">Số điện thoại</label>
                 <input type="text" name="phone" value={user.phone} onChange={handleChange} className="w-full border p-2 rounded-md mt-1" />
             </div>
