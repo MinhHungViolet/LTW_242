@@ -125,16 +125,66 @@
              elseif ($requestMethod === 'GET') { $adminController->getAllUsers(); }
              else { http_response_code(405); echo json_encode(['error' => 'Phương thức không hỗ trợ cho /admin/users. Chỉ hỗ trợ POST, GET.']); }
          } else { http_response_code(400); echo json_encode(['error' => 'ID người dùng không hợp lệ trong URL /admin/users/.']); }
-     } elseif ($adminResource === 'orders') { // /admin/orders...
-         if (isset($pathSegments[2]) && is_numeric($pathSegments[2]) && isset($pathSegments[3]) && $pathSegments[3] === 'status') { // /admin/orders/{id}/status
-             $orderId = (int)$pathSegments[2];
-             if ($requestMethod === 'PUT') { $adminController->updateOrderStatus($orderId); }
-             else { http_response_code(405); echo json_encode(['error' => 'Phương thức không hỗ trợ cho /admin/orders/{id}/status. Chỉ hỗ trợ PUT.']); }
-         } elseif (!isset($pathSegments[2])) { // /admin/orders
-              if ($requestMethod === 'GET') { $adminController->getAllOrders(); }
-              else { http_response_code(405); echo json_encode(['error' => 'Phương thức không hỗ trợ cho /admin/orders. Chỉ hỗ trợ GET.']); }
-         } else { http_response_code(404); echo json_encode(['error' => 'Endpoint admin orders không hợp lệ.']); }
-     } else { http_response_code(404); echo json_encode(['error' => "Tài nguyên admin '{$adminResource}' không tồn tại."]); }
+     } elseif ($adminResource === 'orders') { // Xử lý các request bắt đầu bằng /admin/orders
+
+        // Phân tích các phần tiếp theo của URL
+        // $pathSegments[0] là 'admin'
+        // $pathSegments[1] là 'orders'
+        $orderId = isset($pathSegments[2]) && is_numeric($pathSegments[2]) ? (int)$pathSegments[2] : null; // Lấy ID đơn hàng (nếu có và là số)
+        $actionOrStatus = $pathSegments[3] ?? null; // Lấy phần tử thứ 4 (ví dụ: 'status')
+
+        // --- Phân loại và xử lý dựa trên cấu trúc URL và Method ---
+
+        // Trường hợp 1: URL là /admin/orders/{orderId}/status (Cập nhật trạng thái)
+        if ($orderId !== null && $actionOrStatus === 'status') {
+            if ($requestMethod === 'PUT') {
+                // Gọi hàm cập nhật status trong AdminController
+                $adminController->updateOrderStatus($orderId);
+            } else {
+                // Chỉ hỗ trợ PUT cho URL này
+                http_response_code(405); // Method Not Allowed
+                echo json_encode(['error' => 'Phương thức không hỗ trợ cho /admin/orders/{id}/status. Chỉ hỗ trợ PUT.']);
+            }
+        }
+
+        // Trường hợp 2: URL là /admin/orders/{orderId} (Xem chi tiết đơn hàng)
+        elseif ($orderId !== null && $actionOrStatus === null) { // Có ID nhưng không có action 'status' theo sau
+             if ($requestMethod === 'GET') {
+                 // Gọi hàm lấy chi tiết đơn hàng trong AdminController
+                 $adminController->getOrderDetailAsAdmin($orderId);
+             } else {
+                  // Chỉ hỗ trợ GET cho URL này
+                  http_response_code(405); // Method Not Allowed
+                  echo json_encode(['error' => 'Phương thức không hỗ trợ cho /admin/orders/{id}. Chỉ hỗ trợ GET.']);
+             }
+        }
+
+        // Trường hợp 3: URL là /admin/orders (Xem danh sách tất cả đơn hàng)
+        elseif ($orderId === null && $actionOrStatus === null && !isset($pathSegments[2])) { // Không có ID và không có action
+             if ($requestMethod === 'GET') {
+                 // Gọi hàm lấy tất cả đơn hàng trong AdminController
+                 $adminController->getAllOrders();
+             } else {
+                 // Chỉ hỗ trợ GET cho URL này
+                 http_response_code(405); // Method Not Allowed
+                 echo json_encode(['error' => 'Phương thức không hỗ trợ cho /admin/orders. Chỉ hỗ trợ GET.']);
+             }
+        }
+
+        // Trường hợp 4: Các cấu trúc URL khác dưới /admin/orders không hợp lệ
+        else {
+             // Kiểm tra xem segment thứ 3 có tồn tại nhưng không phải là số không (lỗi ID)
+             if (isset($pathSegments[2]) && !is_numeric($pathSegments[2])) {
+                  http_response_code(400); // Bad Request
+                  echo json_encode(['error' => 'ID đơn hàng trong URL không hợp lệ (phải là số).']);
+             } else {
+                  // Các trường hợp khác (vd: /admin/orders/1/abc, /admin/orders/abc/status)
+                  http_response_code(404); // Not Found
+                  echo json_encode(['error' => 'Endpoint admin orders không hợp lệ hoặc không được tìm thấy.']);
+             }
+        }
+
+   } else { http_response_code(404); echo json_encode(['error' => "Tài nguyên admin '{$adminResource}' không tồn tại."]); }
 
  } elseif ($mainRoute === 'cart') {
     // === Route cho Cart ===
@@ -207,11 +257,18 @@
      $userData = authenticate();
      if (!$userData) exit();
      $orderController = new OrderController($pdo);
+     $orderId = isset($pathSegments[1]) && is_numeric($pathSegments[1]) ? (int)$pathSegments[1] : null;
      if ($requestMethod === 'POST' && !isset($pathSegments[1])) { // POST /orders
           $orderController->createOrder($userData);
-     } elseif ($requestMethod === 'GET' && !isset($pathSegments[1])) { // GET /orders
-           $orderController->getOrderHistory($userData);
-     } else { http_response_code(405); echo json_encode(['error' => 'Phương thức hoặc endpoint đơn hàng không hợp lệ.']); }
+     } elseif ($requestMethod === 'GET') {
+        if ($orderId !== null) {
+            // *** Gọi hàm xem chi tiết đơn hàng ***
+            $orderController->getOrderDetail($userData, $orderId);
+        } else {
+            // *** Gọi hàm xem lịch sử đơn hàng (không có ID) ***
+            $orderController->getOrderHistory($userData);
+        }
+   } else { http_response_code(405); echo json_encode(['error' => 'Phương thức hoặc endpoint đơn hàng không hợp lệ.']); }
 
  // *** ↓↓↓ BẮT ĐẦU PHẦN BỔ SUNG CHO USER PROFILE ↓↓↓ ***
  } elseif ($mainRoute === 'user') {
