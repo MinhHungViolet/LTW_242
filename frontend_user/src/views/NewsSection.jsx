@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import news1 from "../Images/news1.png";
 import bg from "../Images/bg-02.jpg";
+import defaultNewsImage from "../Images/bg-02.jpg"; // Using bg-02.jpg as default news image, you can change this to a more appropriate image
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../contexts/AuthContext"; // Import useAuth hook
@@ -569,7 +570,7 @@ const NewsSection = () => {
                     <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                   </svg>
                 </div>
-              </div>
+              ))}
             </div>
 
             {/* Recent posts */}
@@ -626,8 +627,8 @@ const NewsSection = () => {
                         )}
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             </div>
           </div>

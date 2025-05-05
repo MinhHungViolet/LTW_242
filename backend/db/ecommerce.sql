@@ -8,6 +8,8 @@ CREATE TABLE user (
     role ENUM('admin', 'customer') DEFAULT 'customer',
     phone VARCHAR(20),
     avatar VARCHAR(255),
+    birthDate DATE DEFAULT NULL,
+    gender VARCHAR(10) DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -147,6 +149,42 @@ INSERT INTO purchased_order (address, totalPrice, method, userId, status) VALUES
 ('456 Đường XYZ, Quận 2, TP.HCM', 450000, 'Momo', 2, 'shipped'),
 ('789 Đường DEF, Quận 3, TP.HCM', 360000, 'Banking', 3, 'processing'),
 ('321 Đường GHI, Quận 4, TP.HCM', 500000, 'COD', 4, 'pending');
+
+-- Thêm dữ liệu mẫu vào bảng Post
+INSERT INTO post (title, content, category, authorId, date) VALUES
+('Xu hướng thời trang mùa hè 2024', 'Khám phá những xu hướng thời trang nóng nhất cho mùa hè năm nay...', 'Fashion', 3, '2024-05-01 10:00:00'),
+('Tips phối đồ công sở', 'Những gợi ý phối đồ chuyên nghiệp và thanh lịch cho dân văn phòng...', 'Tips', 3, '2024-05-02 14:30:00'),
+('Bộ sưu tập mới nhất của cửa hàng', 'Giới thiệu những sản phẩm mới nhất đã có mặt tại cửa hàng...', 'News', 3, '2024-05-03 09:15:00'),
+('Chương trình khuyến mãi tháng 5', 'Giảm giá đặc biệt lên đến 50% cho nhiều mặt hàng...', 'Promotion', 3, '2024-05-04 11:45:00'),
+('Hướng dẫn chọn size quần áo chuẩn', 'Chi tiết cách đo và chọn size quần áo phù hợp...', 'Guide', 3, '2024-05-04 16:20:00');
+
+-- Thêm dữ liệu mẫu vào bảng Post
+INSERT INTO post (title, content, category, authorId) VALUES
+('Xu hướng thời trang mùa hè 2025', '<p>Mùa hè năm nay chứng kiến sự trở lại của những items retro...</p>', 'Fashion', 1),
+('Cách chọn size quần áo chuẩn', '<p>Để chọn được size quần áo phù hợp, bạn cần lưu ý những điểm sau...</p>', 'Guide', 1),
+('Khuyến mãi tháng 5 - Giảm giá đến 50%', '<p>Chương trình khuyến mãi lớn nhất trong năm với nhiều ưu đãi hấp dẫn...</p>', 'Promotion', 1),
+('Top 5 phong cách thời trang được ưa chuộng', '<p>Minimalism tiếp tục dẫn đầu xu hướng với những thiết kế đơn giản...</p>', 'Fashion', 1),
+('Tips phối đồ cho người mới bắt đầu', '<p>Những nguyên tắc cơ bản khi phối đồ mà bạn nên biết...</p>', 'Tips', 1);
+
+-- Insert sample data into post table
+INSERT INTO post (title, content, category, authorId) VALUES
+('Welcome to Our New Store!', 'We are excited to announce the grand opening of our online store. Check out our amazing products and special offers!', 'announcement', 1),
+('Summer Collection 2025', 'Discover our latest summer collection featuring trendy designs and comfortable fabrics perfect for the season.', 'products', 1),
+('Shopping Guide: How to Choose the Perfect Outfit', 'Learn expert tips on selecting outfits that match your style and body type. Read our comprehensive guide.', 'guide', 1),
+('Customer Appreciation Week', 'Join us for a week of special discounts and exclusive offers as we celebrate our valued customers.', 'promotion', 1),
+('Fashion Trends 2025', 'Stay ahead of the curve with our forecast of the hottest fashion trends for 2025.', 'fashion', 1),
+('Store Maintenance Notice', 'Our website will undergo scheduled maintenance this weekend. We apologize for any inconvenience.', 'announcement', 1),
+('New Arrivals: Premium Collection', 'Explore our newly arrived premium collection featuring luxury items and designer collaborations.', 'products', 1),
+('Holiday Shopping Tips', 'Make your holiday shopping stress-free with our expert shopping tips and gift guides.', 'guide', 1),
+('Black Friday Sale Preview', 'Get ready for our biggest sale of the year! Preview the amazing deals coming this Black Friday.', 'promotion', 1),
+('Sustainable Fashion Initiative', 'Learn about our commitment to sustainability and eco-friendly fashion choices.', 'announcement', 1);
+
+
+
+
+-- Cập nhật các bản ghi hiện có với giá trị mặc định cho avatar nếu cần
+UPDATE user SET avatar = 'https://via.placeholder.com/100' WHERE avatar IS NULL;
+
 SELECT * FROM user;
 SELECT * FROM purchased_order;
 SELECT * FROM cart_contain_product;

@@ -188,10 +188,11 @@ class AuthController {
                     'message' => 'Đăng nhập thành công!',
                     'token' => $token,
                     'user' => [ // Chỉ trả về thông tin an toàn
-                         'id' => $user['userId'],
+                         'userId' => $user['userId'],
                          'name' => $user['name'],
                          'email' => $user['email'],
-                         'role' => $user['role']
+                         'role' => $user['role'],
+                         'token' => $token // Include token in the user object as well
                      ]
                  ]);
             } else {

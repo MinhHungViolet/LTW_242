@@ -3,16 +3,16 @@ import Purchase from "../Product/Purchase";
 import Introduction from "../views/Introduction";
 import NewsSection from "../views/NewsSection";
 import NewsDetail from "../views/NewsDetail";
+import NewsCreate from "../views/NewsCreate";
+import NewsEdit from "../views/NewsEdit";
 import Question from "../views/Question";
 import ProductList from "../Product/ProductList";
 import Home from "../HomePage/Home";
 import UserInfo from "../UserInfo/UserInfo";
 
-
 const MainRoutes = [
     {
         path: "/",
-        // element: <Introduction />,
         element: <Home />
     },
     {
@@ -30,6 +30,14 @@ const MainRoutes = [
     {
         path: "/news",
         element: <NewsSection />,
+    },
+    {
+        path: "/news/create",
+        element: <NewsCreate />,
+    },
+    {
+        path: "/news/edit/:id",
+        element: <NewsEdit />,
     },
     {
         path: "/news/:id",
