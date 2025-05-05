@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>News Management - Admin Dashboard</title>
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="../../assets/compiled/svg/favicon.svg" type="image/x-icon">
+
+    <!-- Core CSS -->
+    <link rel="stylesheet" href="../../assets/compiled/css/app.css">
+    <link rel="stylesheet" href="../../assets/compiled/css/app-dark.css">
+
+    <!-- Additional CSS -->
+    <link rel="stylesheet" href="../../assets/extensions/datatables.net-bs5/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="../../assets/extensions/sweetalert2/sweetalert2.min.css">
+    <link rel="stylesheet" href="../../assets/extensions/quill/quill.snow.css">
+</head>
+
+<body>
+    <div id="app">
+        <!-- Sidebar Container -->
+        <div id="sidebar"></div>
+
+        <div id="main" class="layout-navbar navbar-fixed">
+            <!-- Header Container -->
+            <header></header>
+
+            <div id="main-content">
+                <div class="page-heading">
+                    <div class="page-title">
+                        <div class="row">
+                            <div class="col-12 col-md-6 order-md-1 order-last">
+                                <h3>News Management</h3>
+                                <p class="text-subtitle text-muted">Create, edit and delete news posts</p>
+                            </div>
+                            <div class="col-12 col-md-6 order-md-2 order-first">
+                                <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
+                                    <ol class="breadcrumb">
+                                        <li class="breadcrumb-item"><a href="../HomePage.html">Dashboard</a></li>
+                                        <li class="breadcrumb-item active" aria-current="page">News Management</li>
+                                    </ol>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Main Content -->
+                    <section class="section">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h4 class="card-title">All News Posts</h4>
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addNewsModal">
+                                    <i class="bi bi-plus"></i> Add New Post
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                <table class="table table-striped" id="news-table">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Image</th>
+                                            <th>Title</th>
+                                            <th>Date</th>
+                                            <th>Author</th>
+                                            <th>Category</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Data loaded by JavaScript -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add News Modal -->
+    <div class="modal fade" id="addNewsModal" tabindex="-1" aria-labelledby="addNewsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addNewsModalLabel">Add New Post</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="addNewsForm">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Title</label>
+                            <input type="text" class="form-control" id="title" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="content" class="form-label">Content</label>
+                            <textarea class="form-control" id="content" rows="5" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="category" class="form-label">Category</label>
+                            <input type="text" class="form-control" id="category" placeholder="Uncategorized">
+                        </div>
+                        <div class="mb-3">
+                            <label for="image" class="form-label">Featured Image</label>
+                            <input type="file" class="form-control" id="image" accept="image/*">
+                        </div>
+                        <div id="imagePreview" class="d-none my-3 text-center">
+                            <img src="" alt="Preview" class="img-fluid rounded" style="max-height: 200px;">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Create Post</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit News Modal -->
+    <div class="modal fade" id="editNewsModal" tabindex="-1" aria-labelledby="editNewsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editNewsModalLabel">Edit News Post</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="editNewsForm">
+                    <div class="modal-body">
+                        <input type="hidden" id="edit-postId">
+                        <div class="mb-3">
+                            <label for="edit-title" class="form-label">Title</label>
+                            <input type="text" class="form-control" id="edit-title" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit-content" class="form-label">Content</label>
+                            <textarea class="form-control" id="edit-content" rows="5" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit-category" class="form-label">Category</label>
+                            <input type="text" class="form-control" id="edit-category">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Current Image</label>
+                            <div id="edit-currentImage" class="d-none my-2 text-center">
+                                <img src="" alt="Current image" class="img-fluid rounded" style="max-height: 200px;">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit-newImage" class="form-label">Replace Image</label>
+                            <input type="file" class="form-control" id="edit-newImage" accept="image/*">
+                            <small class="text-muted">Leave empty to keep current image</small>
+                        </div>
+                        <div id="edit-imagePreview" class="d-none my-3 text-center">
+                            <img src="" alt="Preview" class="img-fluid rounded" style="max-height: 200px;">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Update Post</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- View News Modal -->
+    <div class="modal fade" id="viewNewsModal" tabindex="-1" aria-labelledby="viewNewsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="viewNewsModalLabel">View News Post</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-3">
+                        <img id="view-image" src="" alt="Post image" class="img-fluid rounded" style="max-height: 300px;">
+                    </div>
+                    <h3 id="view-title" class="mb-3"></h3>
+                    <div class="d-flex justify-content-between text-muted small mb-3">
+                        <span>Category: <span id="view-category"></span></span>
+                        <span>By: <span id="view-author"></span> on <span id="view-date"></span></span>
+                    </div>
+                    <div id="view-content" class="mt-4"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../../assets/extensions/jquery/jquery.min.js"></script>
+    <script src="../../assets/static/js/components/dark.js"></script>
+    <script src="../../assets/static/js/perfect-scrollbar.min.js"></script>
+    <script src="../../assets/compiled/js/app.js"></script>
+
+    <!-- Additional JS -->
+    <script src="../../assets/extensions/datatables.net/js/jquery.dataTables.min.js"></script>
+    <script src="../../assets/extensions/datatables.net-bs5/js/dataTables.bootstrap5.min.js"></script>
+    <script src="../../assets/extensions/sweetalert2/sweetalert2.min.js"></script>
+    <script src="../../assets/extensions/quill/quill.min.js"></script>
+
+    <!-- Page script -->
+    <script src="NewsScr.js"></script>
+</body>
+
+</html>

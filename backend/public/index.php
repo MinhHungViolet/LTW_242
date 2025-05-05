@@ -18,6 +18,7 @@ require_once __DIR__ . '/../src/helpers.php';
 require_once __DIR__ . '/../src/Controllers/AdminController.php';
 require_once __DIR__ . '/../src/Controllers/CartController.php';
 require_once __DIR__ . '/../src/Controllers/OrderController.php';
+require_once __DIR__ . '/../src/Controllers/PostController.php';
 
 $pdo = Connection::getInstance();
 
@@ -222,6 +223,34 @@ elseif (!empty($pathSegments[0]) && $pathSegments[0] === 'orders') {
          echo json_encode(['error' => 'Phương thức hoặc endpoint đơn hàng không hợp lệ.']);
     }
 } // *** KẾT THÚC ROUTE ORDERS ***
+
+// *** THÊM ROUTE MỚI CHO NEWS ***
+elseif (!empty($pathSegments[0]) && $pathSegments[0] === 'news') {
+    $controller = new PostController();
+
+    if ($requestMethod === 'GET') {
+        // Handle GET requests for both listing and single post
+        if (isset($pathSegments[1]) && is_numeric($pathSegments[1])) {
+            // Get single post by ID
+            $_GET['postId'] = $pathSegments[1];
+        }
+        $controller->handleRequest();
+    }
+    elseif ($requestMethod === 'POST') {
+        // Create new post (requires admin auth)
+        $controller->handleRequest();
+    }
+    elseif ($requestMethod === 'DELETE' && isset($pathSegments[1]) && is_numeric($pathSegments[1])) {
+        // Delete post (requires admin auth)
+        $_GET['postId'] = $pathSegments[1];
+        $controller->handleRequest();
+    }
+    else {
+        http_response_code(405);
+        echo json_encode(['error' => 'Method not allowed or invalid endpoint']);
+    }
+}
+
 // Route không tồn tại
 else {
     http_response_code(404);

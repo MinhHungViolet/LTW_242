@@ -66,12 +66,16 @@ const LoginPage = ({ onClose }) => {
 
             if (response.data.status === "success") {
                 const userData = response.data.data;
+                const authToken = response.data.token; // Extract the token from the response
+                
                 if (userData.role !== role) {
                     setError(`Tài khoản này có vai trò ${userData.role}, không phải ${role}!`);
                     setLoading(false);
                     return;
                 }
-                login(userData);
+                
+                login(userData, authToken); // Pass both user data and token to the login function
+                
                 toast.success("Đăng nhập thành công!", {
                     position: "top-right",
                     autoClose: 2000,
@@ -86,6 +90,7 @@ const LoginPage = ({ onClose }) => {
                 }, 2000); // Chỉ đóng modal, không điều hướng
             }
         } catch (err) {
+            console.error("Login error:", err.response?.data || err);
             setError(err.response?.data?.message || "Thông tin đăng nhập chưa chính xác!");
             setLoading(false);
         }
@@ -139,8 +144,11 @@ const LoginPage = ({ onClose }) => {
 
             if (response.data.status === "success") {
                 const userData = response.data.data;
+                const authToken = response.data.token; // Extract the token from the response
+                
                 userData.role = "customer";
-                login(userData);
+                login(userData, authToken); // Pass both user data and token to the login function
+                
                 toast.success("Đăng ký thành công!", {
                     position: "top-right",
                     autoClose: 2000,
@@ -155,6 +163,7 @@ const LoginPage = ({ onClose }) => {
                 }, 2000); // Chỉ đóng modal, không điều hướng
             }
         } catch (err) {
+            console.error("Register error:", err.response?.data || err);
             setError(err.response?.data?.message || "Lỗi khi đăng ký!");
             setLoading(false);
         }
