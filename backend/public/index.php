@@ -19,11 +19,13 @@
  require_once __DIR__ . '/../src/Database/Connection.php';
  require_once __DIR__ . '/../src/Controllers/ProductController.php';
  require_once __DIR__ . '/../src/Controllers/AuthController.php';
- // require_once __DIR__ . '/../src/helpers.php'; // Include nếu hàm authenticate() ở đây
+ require_once __DIR__ . '/../src/helpers.php'; // Include nếu hàm authenticate() ở đây
  require_once __DIR__ . '/../src/Controllers/AdminController.php';
  require_once __DIR__ . '/../src/Controllers/CartController.php';
  require_once __DIR__ . '/../src/Controllers/OrderController.php';
  require_once __DIR__ . '/../src/Controllers/UserController.php'; // Đã có UserController
+ require_once __DIR__ . '/../src/Controllers/QnaController.php'; // Đã có UserController
+ require_once __DIR__ . '/../src/Controllers/IntroductionController.php'; // Đã có UserController
 
  // --- Hàm Xác Thực JWT (Giả định đã có trong helpers.php hoặc được include đúng cách) ---
  // Nếu hàm authenticate() chưa được include, bạn cần đảm bảo nó được nạp vào ở đây
@@ -304,7 +306,116 @@
      }
  // *** ↑↑↑ KẾT THÚC PHẦN BỔ SUNG USER PROFILE ↑↑↑ ***
 
- } else {
+ } 
+ elseif ($mainRoute === 'introduction') {
+    // === Route cho Introduction ===
+    $introductionController = new IntroductionController($pdo); // Khởi tạo Controller
+    $actionSegment = $pathSegments[1] ?? null; // Kiểm tra xem có segment con không
+
+    // Chỉ xử lý route gốc /introduction, không có segment con
+    if ($actionSegment === null) {
+         switch ($requestMethod) {
+             case 'GET':
+                 // Lấy thông tin introduction (Public)
+                 $introductionController->getIntroduction();
+                 break;
+             case 'PUT':
+                 // Cập nhật introduction (Yêu cầu Admin)
+                 $userData = authenticate(); // Xác thực
+                 if ($userData && $userData->role === 'admin') { // Phân quyền
+                     $introductionController->updateIntroduction();
+                 } else {
+                     http_response_code(403);
+                     echo json_encode(['error' => 'Truy cập bị từ chối. Yêu cầu quyền Admin.']);
+                 }
+                 break;
+             default:
+                 // Các phương thức khác không được hỗ trợ
+                 http_response_code(405);
+                 echo json_encode(['error' => 'Phương thức không hỗ trợ cho /introduction. Chỉ hỗ trợ GET, PUT.']);
+                 break;
+         }
+    } else {
+         // Không hỗ trợ các đường dẫn con dưới /introduction
+         http_response_code(404);
+         echo json_encode(['error' => 'Endpoint introduction không hợp lệ.']);
+    }
+} elseif ($mainRoute === 'question') { // Xử lý các request bắt đầu bằng /question
+    // === Route cho QnA ===
+    $qnaController = new QnaController($pdo); // Khởi tạo QnaController
+
+    // Phân tích các segment con
+    $actionOrId = $pathSegments[1] ?? null; // Lấy segment thứ 2
+    $qnaId = is_numeric($actionOrId) ? (int)$actionOrId : null; // Lấy ID nếu là số
+    $qnaAction = is_string($actionOrId) && !$qnaId ? $actionOrId : null; // Lấy action nếu là chữ
+    $extraSegment = $pathSegments[2] ?? null; // Kiểm tra segment thứ 3
+
+    // --- Xử lý dựa trên cấu trúc URL và Method ---
+
+    // Trường hợp 1: URL là /question (Không có segment con)
+    if ($actionOrId === null) {
+        if ($requestMethod === 'GET') {
+            $qnaController->getQna(); // Giữ nguyên lời gọi hàm
+        } elseif ($requestMethod === 'POST') {
+             // Giữ nguyên logic xác thực cho POST nếu bạn muốn (hoặc bỏ đi nếu không cần)
+             // $userData = authenticate();
+             // if (!$userData) { exit(); }
+            $qnaController->createQna(); // Giữ nguyên lời gọi hàm createQna
+        } else {
+            http_response_code(405);
+            echo json_encode(['error' => 'Phương thức không hỗ trợ cho /question. Chỉ hỗ trợ GET, POST.']);
+        }
+    }
+    // Trường hợp 2: URL là /question/{id} (Có ID là số)
+    elseif ($qnaId !== null) {
+         // Đảm bảo không có segment nào sau ID
+         if ($extraSegment === null) {
+               if ($requestMethod === 'PUT') {
+                   // Giữ nguyên logic xác thực và phân quyền Admin
+                   $userData = authenticate();
+                   if (!$userData || !isset($userData->role) || $userData->role !== 'admin') {
+                       http_response_code(403); echo json_encode(['error' => 'Truy cập bị từ chối. Yêu cầu quyền Admin.']); exit();
+                   }
+                   $qnaController->updateAnswer($qnaId); // Giữ nguyên lời gọi hàm
+               } elseif ($requestMethod === 'DELETE') {
+                    // Giữ nguyên logic xác thực và phân quyền Admin
+                    $userData = authenticate();
+                    if (!$userData || !isset($userData->role) || $userData->role !== 'admin') {
+                        http_response_code(403); echo json_encode(['error' => 'Truy cập bị từ chối. Yêu cầu quyền Admin.']); exit();
+                    }
+                    $qnaController->deleteQna($qnaId); // Giữ nguyên lời gọi hàm
+               } else {
+                   // Các phương thức khác cho /question/{id} không được hỗ trợ trong logic bạn cung cấp
+                   http_response_code(405);
+                   echo json_encode(['error' => 'Phương thức không hỗ trợ cho /question/{id}. Chỉ hỗ trợ PUT, DELETE.']);
+               }
+         } else {
+              // URL dạng /question/123/abc không hợp lệ
+              http_response_code(404); echo json_encode(['error' => 'Endpoint QnA không hợp lệ.']);
+         }
+    }
+    // Trường hợp 3: URL là /question/count hoặc /question/latest
+    elseif ($qnaAction !== null && $extraSegment === null) {
+        if ($requestMethod === 'GET') {
+            if ($qnaAction === 'count') {
+                $qnaController->getQnaCount(); // Giữ nguyên lời gọi hàm
+            } elseif ($qnaAction === 'latest') {
+                $qnaController->getLatestQna(); // Giữ nguyên lời gọi hàm
+            } else {
+                 // Action không phải 'count' hay 'latest'
+                 http_response_code(404); echo json_encode(['error' => "Hành động '{$qnaAction}' không hợp lệ cho QnA."]);
+            }
+        } else {
+             // Chỉ hỗ trợ GET cho /question/count và /question/latest
+             http_response_code(405); echo json_encode(['error' => "Phương thức không hỗ trợ cho /question/{$qnaAction}. Chỉ hỗ trợ GET."]);
+        }
+    }
+    // Trường hợp 4: Các cấu trúc URL khác không hợp lệ
+    else {
+         http_response_code(404); echo json_encode(['error' => 'Endpoint QnA không hợp lệ hoặc không được tìm thấy.']);
+    }
+}
+ else {
      // === Route không tồn tại ===
      http_response_code(404);
      echo json_encode(['error' => 'Endpoint không tồn tại hoặc không được tìm thấy.']);
@@ -313,51 +424,3 @@
  exit(); // Đảm bảo script dừng lại
 
  ?>
-
-
-//route cho QnA
-elseif (!empty($pathSegments[0]) && $pathSegments[0] === 'question') {
-    $qnaController = new QnaController($pdo);
-
-    if ($requestMethod === 'GET' && !isset($pathSegments[1])) {
-        $qnaController->getQna();
-    } elseif ($requestMethod === 'POST' && !isset($pathSegments[1])) {
-        $qnaController->createQna();
-    } elseif ($requestMethod === 'PUT' && isset($pathSegments[1]) && is_numeric($pathSegments[1])) {
-        $userData = authenticate();
-        if (!$userData || $userData->role !== 'admin') {
-            http_response_code(403);
-            echo json_encode(['error' => 'Truy cập bị từ chối. Yêu cầu quyền Admin.']);
-            exit();
-        }
-        $questionId = (int)$pathSegments[1];
-        $qnaController->updateAnswer($questionId);
-    } elseif( $requestMethod === 'DELETE' && isset($pathSegments[1]) && is_numeric($pathSegments[1])) {
-        $userData = authenticate();
-        if (!$userData || $userData->role !== 'admin') {
-            http_response_code(403);
-            echo json_encode(['error' => 'Truy cập bị từ chối. Yêu cầu quyền Admin.']);
-            exit();
-        }
-        $questionId = (int)$pathSegments[1];
-        $qnaController->deleteQna($questionId);
-    }
-    elseif ($requestMethod === 'GET' && $pathSegments[1] === 'count' && !isset($pathSegments[2])) {
-        $qnaController->getQnaCount();
-    }
-    elseif ($requestMethod === 'GET' && $pathSegments[1] === 'latest' && !isset($pathSegments[2])) {
-        $qnaController->getLatestQna();
-    }
-    else {
-        http_response_code(405);
-        echo json_encode(['error' => 'Phương thức không hợp lệ cho endpoint này.']);
-    }
-}
-// Route không tồn tại
-else {
-    http_response_code(404);
-    echo json_encode(['error' => 'Endpoint không tồn tại hoặc không được tìm thấy.']);
-}
-exit();
-?>
-
