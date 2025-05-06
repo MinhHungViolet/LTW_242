@@ -1,5 +1,6 @@
 <?php
 
+
  // Nạp autoloader của Composer (Quan trọng cho thư viện JWT)
  require_once __DIR__ . '/../vendor/autoload.php';
 
@@ -82,6 +83,7 @@
                  } else { http_response_code(403); echo json_encode(['error' => 'Truy cập bị từ chối. Yêu cầu quyền Admin.']); }
                  break;
              default: http_response_code(405); echo json_encode(['error' => 'Phương thức không hỗ trợ cho /products/{id}.']); break;
+
          }
      }
      // /products
@@ -190,6 +192,7 @@
     // === Route cho Cart ===
     // --- Yêu cầu xác thực cho tất cả /cart/* ---
     $userData = authenticate(); // Lấy thông tin user từ token
+
     if (!$userData) {
         // Hàm authenticate() đã tự xử lý trả lỗi 401 và exit()
         exit(); // Dừng lại nếu không xác thực được
@@ -310,3 +313,51 @@
  exit(); // Đảm bảo script dừng lại
 
  ?>
+
+
+//route cho QnA
+elseif (!empty($pathSegments[0]) && $pathSegments[0] === 'question') {
+    $qnaController = new QnaController($pdo);
+
+    if ($requestMethod === 'GET' && !isset($pathSegments[1])) {
+        $qnaController->getQna();
+    } elseif ($requestMethod === 'POST' && !isset($pathSegments[1])) {
+        $qnaController->createQna();
+    } elseif ($requestMethod === 'PUT' && isset($pathSegments[1]) && is_numeric($pathSegments[1])) {
+        $userData = authenticate();
+        if (!$userData || $userData->role !== 'admin') {
+            http_response_code(403);
+            echo json_encode(['error' => 'Truy cập bị từ chối. Yêu cầu quyền Admin.']);
+            exit();
+        }
+        $questionId = (int)$pathSegments[1];
+        $qnaController->updateAnswer($questionId);
+    } elseif( $requestMethod === 'DELETE' && isset($pathSegments[1]) && is_numeric($pathSegments[1])) {
+        $userData = authenticate();
+        if (!$userData || $userData->role !== 'admin') {
+            http_response_code(403);
+            echo json_encode(['error' => 'Truy cập bị từ chối. Yêu cầu quyền Admin.']);
+            exit();
+        }
+        $questionId = (int)$pathSegments[1];
+        $qnaController->deleteQna($questionId);
+    }
+    elseif ($requestMethod === 'GET' && $pathSegments[1] === 'count' && !isset($pathSegments[2])) {
+        $qnaController->getQnaCount();
+    }
+    elseif ($requestMethod === 'GET' && $pathSegments[1] === 'latest' && !isset($pathSegments[2])) {
+        $qnaController->getLatestQna();
+    }
+    else {
+        http_response_code(405);
+        echo json_encode(['error' => 'Phương thức không hợp lệ cho endpoint này.']);
+    }
+}
+// Route không tồn tại
+else {
+    http_response_code(404);
+    echo json_encode(['error' => 'Endpoint không tồn tại hoặc không được tìm thấy.']);
+}
+exit();
+?>
+

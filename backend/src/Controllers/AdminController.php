@@ -129,8 +129,11 @@ class AdminController {
             $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
             // Trả về danh sách user với mã 200 OK
-            $this->sendResponse(200, $users);
-    
+            $this->sendResponse(200, 
+            [
+                'status' => 'success',
+                'data' => $users
+            ]);
         } catch (PDOException $e) {
             error_log("API Error (AdminController::getAllUsers): " . $e->getMessage());
             $this->sendResponse(500, ['error' => 'Lỗi máy chủ nội bộ khi lấy danh sách người dùng.']);
