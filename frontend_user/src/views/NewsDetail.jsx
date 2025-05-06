@@ -364,6 +364,7 @@ const NewsDetail = () => {
         </div>
       </div>
     </div>
+    </div>
   );
 };
 
