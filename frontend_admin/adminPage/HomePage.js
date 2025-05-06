@@ -1,61 +1,156 @@
+// HomePage.js
+
+// Hiển thị thông tin Admin và xử lý logout
+function setupAdminInfo() {
+    const token = localStorage.getItem('adminToken');
+    // Nếu không có token, chuyển về trang login
+    if (!token) {
+        window.location.replace('admin_login.html');
+        return;
+    }
+    let name = localStorage.getItem('adminName');
+    let email;
+    try {
+        // Giải mã token để lấy email
+        const decoded = jwt_decode(token);
+        email = decoded.email || decoded.userEmail;
+        // Nếu chưa lưu name riêng, thử lấy từ payload user.name
+        if (!name && decoded.user && decoded.user.name) {
+            name = decoded.user.name;
+        }
+    } catch (e) {
+        console.error('Không thể decode token:', e);
+    }
+    // Dùng email làm tên nếu chưa có
+    if (!name) {
+        name = email;
+    }
+    // Hiển thị
+    const nameEl = document.getElementById('admin-display-name');
+    const emailEl = document.getElementById('admin-display-email');
+    nameEl.textContent = name;
+    emailEl.textContent = email;
+
+    // Logout
+    const logoutBtn = document.getElementById('admin-logout-button');
+    logoutBtn.addEventListener('click', e => {
+        e.preventDefault();
+        localStorage.removeItem('adminToken');
+        localStorage.removeItem('adminName');
+        window.location.replace('admin_login.html');
+    });
+}
+
+// Lấy số lượng Q&A
 async function fetchQnaCount() {
     try {
-        const token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJ5b3VyX2FwaV9kb21haW4uY29tIiwiYXVkIjoieW91cl9hcGlfZG9tYWluLmNvbSIsImlhdCI6MTc0NjI3MjE4OCwiZXhwIjoxNzQ2ODc2OTg4LCJ1c2VySWQiOjExLCJlbWFpbCI6InF1b2NkYXRhZG1pbkBlbWFpbC5jb20iLCJyb2xlIjoiYWRtaW4ifQ.6l0-lxKa-GXQItFzYp9PEs989w6R9AeIyF-u3s9O2cI';
+        const token = localStorage.getItem('adminToken');
         const response = await fetch('http://localhost/backend/public/question/count', {
             headers: token ? { 'Authorization': `Bearer ${token}` } : {}
         });
         const data = await response.json();
+        const el = document.getElementById('qnaCount');
         if (data.status === 'success') {
-            document.getElementById('qnaCount').textContent = data.data;
+            el.textContent = data.data;
         } else {
-            document.getElementById('qnaCount').textContent = 'Error';
-            console.error('Lỗi khi lấy số câu hỏi: ' + data.message);
+            el.textContent = 'Error';
+            console.error('Lỗi khi lấy số câu hỏi:', data);
         }
     } catch (err) {
-        document.getElementById('qnaCount').textContent = 'Error';
-        console.error('Lỗi khi lấy số câu hỏi: ' + err.message);
+        const el = document.getElementById('qnaCount');
+        el.textContent = 'Error';
+        console.error('Lỗi khi lấy số câu hỏi:', err);
     }
 }
 
+// Lấy câu hỏi mới nhất
 async function fetchLatestQna() {
     try {
-        const token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJ5b3VyX2FwaV9kb21haW4uY29tIiwiYXVkIjoieW91cl9hcGlfZG9tYWluLmNvbSIsImlhdCI6MTc0NjI3MjE4OCwiZXhwIjoxNzQ2ODc2OTg4LCJ1c2VySWQiOjExLCJlbWFpbCI6InF1b2NkYXRhZG1pbkBlbWFpbC5jb20iLCJyb2xlIjoiYWRtaW4ifQ.6l0-lxKa-GXQItFzYp9PEs989w6R9AeIyF-u3s9O2cI';
+        const token = localStorage.getItem('adminToken');
         const response = await fetch('http://localhost/backend/public/question/latest', {
             headers: token ? { 'Authorization': `Bearer ${token}` } : {}
         });
         const data = await response.json();
         if (data.status === 'success') {
             const tbody = document.querySelector('#recentQnaTable tbody');
-            tbody.innerHTML = ''; // Xóa nội dung cũ
-            data.data.forEach((qna, index) => {
-                if (index < 5) { // Hạn chế hiển thị 5 câu hỏi
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td class="col-3">
-                            <div class="d-flex align-items-center">
-                                <div class="avatar avatar-md">
-                                    <img src="../assets/compiled/jpg/${index % 5 + 1}.jpg">
-                                </div>
-                                <p class="font-bold ms-3 mb-0">User ${qna.customerId}</p>
+            tbody.innerHTML = '';
+            data.data.slice(0, 5).forEach((qna, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="col-3">
+                        <div class="d-flex align-items-center">
+                            <div class="avatar avatar-md">
+                                <img src="../assets/compiled/jpg/${(index % 5) + 1}.jpg">
                             </div>
-                        </td>
-                        <td class="col-auto">
-                            <p class="mb-0">${qna.question}</p>
-                        </td>
-                    `;
-                    tbody.appendChild(tr);
-                }
+                            <p class="font-bold ms-3 mb-0">User ${qna.customerId}</p>
+                        </div>
+                    </td>
+                    <td class="col-auto">
+                        <p class="mb-0">${qna.question}</p>
+                    </td>
+                `;
+                tbody.appendChild(tr);
             });
         } else {
-            console.error('Lỗi khi lấy câu hỏi mới nhất: ' + data.message);
+            console.error('Lỗi khi lấy câu hỏi mới nhất:', data);
         }
     } catch (err) {
-        console.error('Lỗi khi lấy câu hỏi mới nhất: ' + err.message);
+        console.error('Lỗi khi lấy câu hỏi mới nhất:', err);
     }
 }
 
-// Gọi cả hai hàm khi trang tải
+// Lấy tổng số đơn hàng
+async function fetchOrderCount() {
+    try {
+        const token = localStorage.getItem('adminToken');
+        const response = await fetch('http://localhost/backend/public/admin/orders', {
+            headers: token ? { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' } : { 'Accept': 'application/json' }
+        });
+        const data = await response.json();
+        console.log('Order list response:', data);
+        let list = [];
+        if (Array.isArray(data)) {
+            list = data;
+        } else if (data.data && Array.isArray(data.data)) {
+            list = data.data;
+        } else {
+            console.error('Không nhận được mảng đơn hàng:', data);
+        }
+        document.getElementById('orderCount').textContent = list.length;
+    } catch (err) {
+        console.error('Lỗi khi lấy số đơn hàng:', err);
+        document.getElementById('orderCount').textContent = 'Error';
+    }
+}
+
+// Lấy tổng số sản phẩm
+async function fetchProductCount() {
+    try {
+        const response = await fetch('http://localhost/backend/public/products', {
+            headers: { 'Accept': 'application/json' }
+        });
+        const data = await response.json();
+        console.log('Product list response:', data);
+        let list = [];
+        if (Array.isArray(data)) {
+            list = data;
+        } else if (data.data && Array.isArray(data.data)) {
+            list = data.data;
+        } else {
+            console.error('Không nhận được mảng sản phẩm:', data);
+        }
+        document.getElementById('productCount').textContent = list.length;
+    } catch (err) {
+        console.error('Lỗi khi lấy số sản phẩm:', err);
+        document.getElementById('productCount').textContent = 'Error';
+    }
+}
+
+// Gọi các hàm khi trang tải
 document.addEventListener('DOMContentLoaded', () => {
+    setupAdminInfo();
     fetchQnaCount();
     fetchLatestQna();
+    fetchOrderCount();
+    fetchProductCount();
 });
