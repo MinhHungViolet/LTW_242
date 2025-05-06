@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import ImageSlider from '../Layout/IntroPic';
 import { useAuth } from '../contexts/AuthContext';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Question = () => {
   const auth = useAuth();
   const { user } = auth || {};
-  const customerId = user ? user.userId : null;
+  const customerId = user ? user.id : null;
 
   const [activeIndexFAQ, setActiveIndexFAQ] = useState(null);
   const [activeIndexMyQuestions, setActiveIndexMyQuestions] = useState(null);
@@ -18,7 +20,7 @@ const Question = () => {
   const [error, setError] = useState(null);
   const [showMyQuestions, setShowMyQuestions] = useState(false);
 
-  const API_URL = 'http://localhost/backend/src/Controllers/QnaController.php';
+  const API_URL = 'http://localhost/backend/public/question';
 
   const fetchFAQQuestions = async () => {
     try {
@@ -65,41 +67,62 @@ const Question = () => {
   };
 
   const openModal = () => {
+    console.log('User khi mở modal:', user); // Debug user
     if (!user) {
       setError('Vui lòng đăng nhập để đặt câu hỏi');
       return;
     }
     setIsModalOpen(true);
   };
+
   const closeModal = () => setIsModalOpen(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!user) {
+    console.log('User khi gửi câu hỏi:', user); // Debug user
+    console.log('CustomerId:', customerId); // Debug customerId
+    if (!user || !customerId || customerId <= 0) {
       setError('Vui lòng đăng nhập để đặt câu hỏi');
       return;
     }
+    if (!userQuestion || !userQuestion.trim()) {
+      setError('Vui lòng nhập câu hỏi');
+      return;
+    }
+    const payload = {
+      question: userQuestion.trim(),
+      customerId: customerId
+    };
+    console.log('Dữ liệu gửi đi:', payload); // Debug dữ liệu
     try {
-      const response = await axios.post(API_URL, {
-        question: userQuestion,
-        customerId
-      }, {
+      const response = await axios.post(API_URL, payload, {
         headers: { 'Content-Type': 'application/json' }
       });
+      console.log('Phản hồi từ API:', response.data); // Debug phản hồi
       if (response.data.status === 'success') {
         setUserQuestion('');
         closeModal();
         fetchFAQQuestions();
         if (showMyQuestions) fetchMyQuestions();
+        toast.success("Đặt câu hỏi thành công!", {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
       } else {
         setError('Lỗi khi gửi câu hỏi: ' + response.data.message);
       }
     } catch (err) {
+      console.error('Lỗi chi tiết:', err); // Debug lỗi
       setError('Lỗi khi gửi câu hỏi: ' + (err.response?.data?.message || err.message));
     }
   };
 
   const toggleMyQuestions = () => {
+    console.log('User khi toggle MyQuestions:', user); // Debug user
     if (!user) {
       setError('Vui lòng đăng nhập để xem câu hỏi của bạn');
       return;
@@ -123,7 +146,7 @@ const Question = () => {
           {faqQuestions.length === 0 ? (
             <p>Chưa có câu hỏi nào.</p>
           ) : (
-            faqQuestions.map((item, index) => (
+            faqQuestions.slice(0, 5).map((item, index) => (
               <div key={item.questionId} className="bg-white shadow-md rounded-lg p-6">
                 <div
                   className="flex justify-between items-center cursor-pointer"
@@ -213,6 +236,17 @@ const Question = () => {
           </div>
         </div>
       )}
+      <ToastContainer
+        position="top-right"
+        autoClose={2000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
     </>
   );
 };
