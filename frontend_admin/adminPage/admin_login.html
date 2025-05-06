@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng Nhập Admin</title>
+
+    <link rel="stylesheet" href="../assets/compiled/css/app.css">
+    <link rel="stylesheet" href="../assets/compiled/css/app-dark.css">
+    <style>
+        /* CSS đơn giản để căn giữa form */
+        html, body {
+            height: 100%;
+        }
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            /* background-color: #f4f7f6; */ /* Màu nền nhẹ nhàng */
+        }
+        .login-card {
+            max-width: 400px;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <script src="../assets/static/js/initTheme.js"></script>
+    <div id="auth" class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-5 col-md-7 col-sm-9">
+                <div class="card login-card shadow-lg">
+                     {/* Bạn có thể thêm logo ở đây nếu muốn */}
+                     {/* <div class="auth-logo text-center mb-4">
+                        <a href="HomePage.html"><img src="../assets/compiled/svg/logo.svg" alt="Logo"></a>
+                     </div> */}
+                    <div class="card-header text-center">
+                        <h1 class="auth-title h3">Đăng Nhập Admin</h1>
+                        <p class="auth-subtitle text-muted mb-2">Nhập thông tin tài khoản quản trị.</p>
+                    </div>
+
+                    <div class="card-body">
+                        <form id="admin-login-form" novalidate>
+                            <div class="form-group position-relative has-icon-left mb-4">
+                                <input type="email" class="form-control form-control-xl" placeholder="Email" id="admin-email" required>
+                                <div class="form-control-icon">
+                                    <i class="bi bi-person"></i>
+                                </div>
+                                 <div class="invalid-feedback">Vui lòng nhập email.</div>
+                            </div>
+                            <div class="form-group position-relative has-icon-left mb-4">
+                                <input type="password" class="form-control form-control-xl" placeholder="Mật khẩu" id="admin-password" required>
+                                <div class="form-control-icon">
+                                    <i class="bi bi-shield-lock"></i>
+                                </div>
+                                 <div class="invalid-feedback">Vui lòng nhập mật khẩu.</div>
+                            </div>
+
+                             {/* Khu vực hiển thị lỗi */}
+                             <div id="login-error-message" class="alert alert-danger mt-3 py-2" style="display: none;" role="alert">
+                                 {/* Nội dung lỗi sẽ được thêm bằng JavaScript */}
+                             </div>
+
+                            <button id="login-button" class="btn btn-primary btn-block btn-lg shadow-lg mt-4" type="submit">
+                                 <span id="login-button-text">Đăng Nhập</span>
+                                 <span id="login-spinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
+                            </button>
+                        </form>
+                         {/* Bạn có thể thêm link "Quên mật khẩu?" nếu cần */}
+                         {/* <div class="text-center mt-4 text-lg fs-4">
+                             <p class="text-gray-600">Don't have an account? <a href="auth-register.html" class="font-bold">Sign
+                                     up</a>.</p>
+                             <p><a class="font-bold" href="auth-forgot-password.html">Forgot password?</a>.</p>
+                         </div> */}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/extensions/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="admin_login.js"></script>
+</body>
+
+</html>

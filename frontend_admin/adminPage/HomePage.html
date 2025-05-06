@@ -16,20 +16,7 @@
     <link rel="stylesheet" href="../assets/compiled/css/iconly.css">
 
     <script src="https://unpkg.com/jwt-decode/build/jwt-decode.js"></script>
-    <script>
-        const adminTokenGuard = localStorage.getItem('adminToken');
-        // Thêm kiểm tra role nếu token có chứa role và bạn muốn chắc chắn hơn
-        // let isAdmin = false;
-        // if (adminTokenGuard) { try { const decoded = jwt_decode(adminTokenGuard); if (decoded.exp * 1000 > Date.now() && decoded.role === 'admin') isAdmin = true; } catch(e){} }
-        // if (!isAdmin) { ... }
-
-        if (!adminTokenGuard) {
-            console.log("Auth Guard: No admin token found, redirecting to login.");
-            // Thay 'admin_login.html' bằng tên trang đăng nhập admin thực tế của bạn
-            window.location.replace('admin_login.html');
-        }
-    </script>
-    </head>
+</head>
 
 <body>
     <script src="../assets/static/js/initTheme.js"></script>
@@ -41,7 +28,7 @@
                         <div class="logo">
                             <a href="HomePage.html"><img src="../assets/compiled/svg/logo.svg" alt="Logo" srcset=""></a>
                         </div>
-                        <div class="theme-toggle d-flex gap-2  align-items-center mt-2">
+                        <div class="theme-toggle d-flex gap-2 align-items-center mt-2">
                             <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
                                 aria-hidden="true" role="img" class="iconify iconify--system-uicons" width="20"
                                 height="20" preserveAspectRatio="xMidYMid meet" viewBox="0 0 21 21">
@@ -59,7 +46,7 @@
                                 </g>
                             </svg>
                             <div class="form-check form-switch fs-6">
-                                <input class="form-check-input  me-0" type="checkbox" id="toggle-dark"
+                                <input class="form-check-input me-0" type="checkbox" id="toggle-dark"
                                     style="cursor: pointer">
                                 <label class="form-check-label"></label>
                             </div>
@@ -71,7 +58,7 @@
                                 </path>
                             </svg>
                         </div>
-                        <div class="sidebar-toggler  x">
+                        <div class="sidebar-toggler x">
                             <a href="#" class="sidebar-hide d-xl-none d-block"><i class="bi bi-x bi-middle"></i></a>
                         </div>
                     </div>
@@ -89,7 +76,7 @@
 
                         </li>
 
-                        <li class="sidebar-item  has-sub">
+                        <li class="sidebar-item has-sub">
                             <a href="#" class='sidebar-link'>
                                 <i class="bi bi-stack"></i>
                                 <span>Trang chủ - Liên hệ</span>
@@ -97,12 +84,12 @@
 
                             <ul class="submenu ">
 
-                                <li class="submenu-item  ">
+                                <li class="submenu-item ">
                                     <a href="component-accordion.html" class="submenu-link">Trang chủ</a>
 
                                 </li>
 
-                                <li class="submenu-item  ">
+                                <li class="submenu-item ">
                                     <a href="component-alert.html" class="submenu-link">Trang liên hệ</a>
 
                                 </li>
@@ -114,77 +101,51 @@
 
                         </li>
 
-                        <li class="sidebar-item  has-sub">
+                        <li class="sidebar-item has-sub">
                             <a href="#" class='sidebar-link'>
                                 <i class="bi bi-collection-fill"></i>
                                 <span>Giới thiệu - Hỏi đáp</span>
                             </a>
-
                             <ul class="submenu ">
-
                                 <li class="submenu-item  ">
                                     <a href="./Introduction/intro.html" class="submenu-link">Giới thiệu</a>
-
                                 </li>
-
                                 <li class="submenu-item  ">
                                     <a href="./Qna/Qna.html" class="submenu-link">Hỏi đáp</a>
-
-
                                 </li>
-
                             </ul>
-
-
                         </li>
 
-                        <li class="sidebar-item  has-sub">
+                        <li class="sidebar-item has-sub">
                             <a href="#" class='sidebar-link'>
                                 <i class="bi bi-grid-1x2-fill"></i>
                                 <span>Sản phẩm - Đơn hàng</span>
                             </a>
-
                             <ul class="submenu ">
-
-                                <li class="submenu-item  ">
+                                <li class="submenu-item ">
                                     <a href="./Product/Product.html" class="submenu-link">Sản phẩm</a>
-
                                 </li>
-
-                                <li class="submenu-item  ">
+                                <li class="submenu-item ">
                                     <a href="./Order/Order.html" class="submenu-link">Đơn hàng</a>
-
                                 </li>
-
                             </ul>
-
-
                         </li>
 
-                        <li class="sidebar-item  has-sub">
+                        <li class="sidebar-item has-sub">
                             <a href="#" class='sidebar-link'>
                                 <i class="bi bi-grid-1x2-fill"></i>
                                 <span>Bài viết</span>
                             </a>
 
                             <ul class="submenu ">
-
-                                <li class="submenu-item  ">
+                                <li class="submenu-item ">
                                     <a href="layout-default.html" class="submenu-link">Danh sách bài viết</a>
-
                                 </li>
-
-                                <li class="submenu-item  ">
+                                <li class="submenu-item ">
                                     <a href="layout-vertical-1-column.html" class="submenu-link">Đọc bài viết</a>
-
                                 </li>
-
                             </ul>
-
-
                         </li>
-
-
                     </ul>
                 </div>
             </div>
@@ -276,20 +237,10 @@
                                 </div>
                             </div>
                         </div>
+
                         <div class="row">
-                            <div class="col-12">
+                            <div class="col-12 col-xl-16">
                                 <div class="card">
-                                    <div class="card-header">
-                                        <h4>Profile Visit</h4>
-                                    </div>
-                                    <div class="card-body">
-                                        <div id="chart-profile-visit"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-12 col-xl-16"> <div class="card">
                                     <div class="card-header">
                                         <h4>Các câu hỏi gần đây</h4>
                                     </div>
@@ -303,34 +254,7 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    <!-- <tr>
-                                                        <td class="col-3">
-                                                            <div class="d-flex align-items-center">
-                                                                <div class="avatar avatar-md">
-                                                                    <img src="../assets/compiled/jpg/5.jpg">
-                                                                </div>
-                                                                <p class="font-bold ms-3 mb-0">Si Cantik</p>
-                                                            </div>
-                                                        </td>
-                                                        <td class="col-auto">
-                                                            <p class=" mb-0">Congratulations on your graduation!</p>
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="col-3">
-                                                            <div class="d-flex align-items-center">
-                                                                <div class="avatar avatar-md">
-                                                                    <img src="../assets/compiled/jpg/2.jpg">
-                                                                </div>
-                                                                <p class="font-bold ms-3 mb-0">Si Ganteng</p>
-                                                            </div>
-                                                        </td>
-                                                        <td class="col-auto">
-                                                            <p class=" mb-0">Wow amazing design! Can you make another
-                                                                tutorial for
-                                                                this design?</p>
-                                                        </td>
-                                                    </tr> -->
+
                                                 </tbody>
                                             </table>
                                         </div>
@@ -344,62 +268,18 @@
                             <div class="card-body py-4 px-4">
                                 <div class="d-flex align-items-center">
                                     <div class="avatar avatar-xl">
-                                        <img src="../assets/compiled/jpg/1.jpg" alt="Face 1" id="admin-avatar"> </div>
+                                        <img src="../assets/compiled/jpg/1.jpg" alt="Face 1" id="admin-avatar">
+                                    </div>
                                     <div class="ms-3 name">
-                                        {/* */}
-                                        <h5 class="font-bold" id="admin-display-name">Admin Name</h5>
-                                        <h6 class="text-muted mb-0" id="admin-display-email">@admin.email</h6>
-                                        {/* */}
-                                        <a href="#" id="admin-logout-button" class="text-danger font-semibold text-sm mt-1 d-block">Đăng xuất</a>
-                                        {/* */}
+
+                                        <h5 class="font-bold" id="admin-display-name"></h5>
+                                        <h6 class="text-muted mb-0" id="admin-display-email"></h6>
+
+                                        <a href="#" id="admin-logout-button"
+                                            class="text-danger font-semibold text-sm mt-1 d-block">Đăng xuất</a>
+
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="card">
-                            <div class="card-header">
-                                <h4>Recent Messages</h4>
-                            </div>
-                            <div class="card-content pb-4">
-                                <div class="recent-message d-flex px-4 py-3">
-                                    <div class="avatar avatar-lg">
-                                        <img src="../assets/compiled/jpg/4.jpg">
-                                    </div>
-                                    <div class="name ms-4">
-                                        <h5 class="mb-1">Hank Schrader</h5>
-                                        <h6 class="text-muted mb-0">@johnducky</h6>
-                                    </div>
-                                </div>
-                                <div class="recent-message d-flex px-4 py-3">
-                                    <div class="avatar avatar-lg">
-                                        <img src="../assets/compiled/jpg/5.jpg">
-                                    </div>
-                                    <div class="name ms-4">
-                                        <h5 class="mb-1">Dean Winchester</h5>
-                                        <h6 class="text-muted mb-0">@imdean</h6>
-                                    </div>
-                                </div>
-                                <div class="recent-message d-flex px-4 py-3">
-                                    <div class="avatar avatar-lg">
-                                        <img src="../assets/compiled/jpg/1.jpg">
-                                    </div>
-                                    <div class="name ms-4">
-                                        <h5 class="mb-1">John Dodol</h5>
-                                        <h6 class="text-muted mb-0">@dodoljohn</h6>
-                                    </div>
-                                </div>
-                                <div class="px-4">
-                                    <button class='btn btn-block btn-xl btn-outline-primary font-bold mt-3'>Start
-                                        Conversation</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card">
-                            <div class="card-header">
-                                <h4>Visitors Profile</h4>
-                            </div>
-                            <div class="card-body">
-                                <div id="chart-visitors-profile"></div>
                             </div>
                         </div>
                     </div>
@@ -429,74 +309,8 @@
 
     <script src="../assets/extensions/apexcharts/apexcharts.min.js"></script>
     <script src="../assets/static/js/pages/dashboard.js"></script>
-    <script src ="HomePage.js"></script>
+    <script src="HomePage.js"></script>
 
-     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const token = localStorage.getItem('adminToken'); // Lấy token đã lưu
-
-            if (token) {
-                try {
-                    // Giải mã token để lấy thông tin (cần thư viện jwt-decode đã thêm ở Bước 1.2)
-                    const decodedToken = jwt_decode(token); // Sử dụng hàm jwt_decode từ thư viện
-
-                    // Lấy tên và email từ payload của token (đảm bảo key khớp với backend)
-                    const adminName = decodedToken.name || 'Admin'; // Lấy name, nếu không có thì dùng 'Admin'
-                    const adminEmail = decodedToken.email || ''; // Lấy email
-
-                    // Cập nhật tên và email trên giao diện
-                    const nameElement = document.getElementById('admin-display-name');
-                    const emailElement = document.getElementById('admin-display-email');
-                    if (nameElement) {
-                        nameElement.textContent = adminName;
-                    }
-                    if (emailElement) {
-                        emailElement.textContent = adminEmail;
-                    }
-
-                    // (Tùy chọn) Cập nhật avatar nếu có trong token và khác mặc định
-                    const avatarElement = document.getElementById('admin-avatar');
-                    const defaultAvatarSrc = "../assets/compiled/jpg/1.jpg"; // Lấy src mặc định từ HTML
-                    if (avatarElement && decodedToken.avatar) {
-                         // Giả sử UPLOADS_URL đã được định nghĩa hoặc bạn biết đường dẫn tương đối
-                         const UPLOADS_URL_PREFIX = '/backend/public/uploads'; // Ví dụ đường dẫn gốc từ localhost
-                         avatarElement.src = `<span class="math-inline">\{UPLOADS\_URL\_PREFIX\}/avatars/</span>{decodedToken.avatar}?t=${Date.now()}`;
-                         avatarElement.onerror = function() { this.onerror=null; this.src=defaultAvatarSrc; }; // Fallback nếu ảnh lỗi
-                     } else if (avatarElement) {
-                          avatarElement.src = defaultAvatarSrc; // Đặt ảnh mặc định nếu không có trong token
-                     }
-
-                } catch (e) {
-                    console.error("Lỗi khi giải mã token hoặc cập nhật UI:", e);
-                    // Xóa token lỗi và chuyển hướng về login
-                    localStorage.removeItem('adminToken');
-                    window.location.replace('admin_login.html'); // <<< Đảm bảo đúng trang login
-                }
-            } else {
-                 // Trường hợp không có token nhưng vẫn vào được trang (do guard script lỗi hoặc chưa có)
-                 // Chuyển hướng về login để đảm bảo
-                 console.log("Không tìm thấy token, đang chuyển hướng về đăng nhập...");
-                 window.location.replace('admin_login.html'); // <<< Đảm bảo đúng trang login
-            }
-
-
-            // Xử lý nút Đăng xuất
-            const logoutButton = document.getElementById('admin-logout-button');
-            if (logoutButton) {
-                logoutButton.addEventListener('click', function(event) {
-                    event.preventDefault(); // Ngăn thẻ <a> chuyển hướng mặc định
-
-                    // Xóa token khỏi localStorage
-                    localStorage.removeItem('adminToken');
-                    // localStorage.removeItem('adminName'); // Không cần nếu lấy tên từ token
-
-                    // Chuyển hướng về trang đăng nhập admin
-                    window.location.replace('admin_login.html'); // <<< Đảm bảo đúng trang login admin
-                });
-            }
-
-        });
-    </script>
-    </body>
+</body>
 
 </html>
