@@ -122,13 +122,14 @@
 
                             <ul class="submenu ">
 
-                                <li class="submenu-item  ">
-                                    <a href="extra-component-avatar.html" class="submenu-link">Giới thiệu</a>
+                                <li class="submenu-item  ">
+                                    <a href="./Introduction/intro.html" class="submenu-link">Giới thiệu</a>
 
                                 </li>
 
-                                <li class="submenu-item  ">
-                                    <a href="extra-component-divider.html" class="submenu-link">Hỏi đáp</a>
+                                <li class="submenu-item  ">
+                                    <a href="./Qna/Qna.html" class="submenu-link">Hỏi đáp</a>
+
 
                                 </li>
 
@@ -268,7 +269,7 @@
                                             </div>
                                             <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7">
                                                 <h6 class="text-muted font-semibold">Số câu hỏi</h6>
-                                                <h6 class="font-extrabold mb-0">10</h6>
+                                                <h6 id="qnaCount" class="font-extrabold mb-0">Loading...</h6>
                                             </div>
                                         </div>
                                     </div>
@@ -294,7 +295,7 @@
                                     </div>
                                     <div class="card-body">
                                         <div class="table-responsive">
-                                            <table class="table table-hover table-lg">
+                                            <table class="table table-hover table-lg" id="recentQnaTable">
                                                 <thead>
                                                     <tr>
                                                         <th>Name</th>
@@ -302,7 +303,7 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    <tr>
+                                                    <!-- <tr>
                                                         <td class="col-3">
                                                             <div class="d-flex align-items-center">
                                                                 <div class="avatar avatar-md">
@@ -329,7 +330,7 @@
                                                                 tutorial for
                                                                 this design?</p>
                                                         </td>
-                                                    </tr>
+                                                    </tr> -->
                                                 </tbody>
                                             </table>
                                         </div>
@@ -428,6 +429,7 @@
 
     <script src="../assets/extensions/apexcharts/apexcharts.min.js"></script>
     <script src="../assets/static/js/pages/dashboard.js"></script>
+    <script src ="HomePage.js"></script>
 
      <script>
         document.addEventListener('DOMContentLoaded', function() {
