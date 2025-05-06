@@ -1,5 +1,46 @@
 // HomePage.js
 
+// Hiển thị thông tin Admin và xử lý logout
+function setupAdminInfo() {
+    const token = localStorage.getItem('adminToken');
+    // Nếu không có token, chuyển về trang login
+    if (!token) {
+        window.location.replace('admin_login.html');
+        return;
+    }
+    let name = localStorage.getItem('adminName');
+    let email;
+    try {
+        // Giải mã token để lấy email
+        const decoded = jwt_decode(token);
+        email = decoded.email || decoded.userEmail;
+        // Nếu chưa lưu name riêng, thử lấy từ payload user.name
+        if (!name && decoded.user && decoded.user.name) {
+            name = decoded.user.name;
+        }
+    } catch (e) {
+        console.error('Không thể decode token:', e);
+    }
+    // Dùng email làm tên nếu chưa có
+    if (!name) {
+        name = email;
+    }
+    // Hiển thị
+    const nameEl = document.getElementById('admin-display-name');
+    const emailEl = document.getElementById('admin-display-email');
+    nameEl.textContent = name;
+    emailEl.textContent = email;
+
+    // Logout
+    const logoutBtn = document.getElementById('admin-logout-button');
+    logoutBtn.addEventListener('click', e => {
+        e.preventDefault();
+        localStorage.removeItem('adminToken');
+        localStorage.removeItem('adminName');
+        window.location.replace('admin_login.html');
+    });
+}
+
 // Lấy số lượng Q&A
 async function fetchQnaCount() {
     try {
@@ -107,6 +148,7 @@ async function fetchProductCount() {
 
 // Gọi các hàm khi trang tải
 document.addEventListener('DOMContentLoaded', () => {
+    setupAdminInfo();
     fetchQnaCount();
     fetchLatestQna();
     fetchOrderCount();
