@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý nội dung giới thiệu - Mazer Admin Dashboard</title>
+    <title>Quản lý câu hỏi - Mazer Admin Dashboard</title>
 
     <link rel="shortcut icon" href="../../assets/compiled/svg/favicon.svg" type="image/x-icon">
     <link rel="shortcut icon"
@@ -92,10 +92,10 @@
                                 <span>Giới thiệu - Hỏi đáp</span>
                             </a>
                             <ul class="submenu">
-                                <li class="submenu-item active">
-                                    <a href="../Intro/Intro.html" class="submenu-link">Giới thiệu</a>
-                                </li>
                                 <li class="submenu-item">
+                                    <a href="../Introduction/intro.html" class="submenu-link">Giới thiệu</a>
+                                </li>
+                                <li class="submenu-item active">
                                     <a href="../Qna/Qna.html" class="submenu-link">Hỏi đáp</a>
                                 </li>
                             </ul>
@@ -139,77 +139,91 @@
             </div>
         </div>
         <!-- Phần nội dung -->
-        <div id="main" class="d-flex flex-column min-vh-100">
-            <header class="mb-3">
-                <a href="#" class="burger-btn d-block d-xl-none">
-                    <i class="bi bi-justify fs-3"></i>
-                </a>
-            </header>
-
-            <div class="page-heading">
-                <h3>Quản lý nội dung giới thiệu</h3>
+        <!-- Phần nội dung chính -->
+        <div id="main">
+            <div class="container py-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3>Quản lý tài khoản</h3>
+                    <button class="btn btn-primary" onclick="openCreateModal()">Thêm Admin</button>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover" id="userTable">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Họ và tên</th>
+                                <th>Email</th>
+                                <th>Vai trò</th>
+                                <th>Số điện thoại</th>
+                                <th>Ngày tạo</th>
+                                <th>Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody id="userTableBody"></tbody>
+                    </table>
+                </div>
             </div>
 
-            <div class="container flex-grow-1">
-                <!-- Form chỉnh sửa nội dung -->
-                <div id="introForm" class="card">
-                    <div class="card-header">
-                        <h5>Chỉnh sửa nội dung trang giới thiệu</h5>
-                    </div>
-                    <div class="card-body">
-                        <!-- Phần 1 -->
-                        <div class="mb-3">
-                            <label for="title1" class="form-label">Tiêu đề 1</label>
-                            <input type="text" class="form-control" id="title1" placeholder="Nhập tiêu đề 1">
+            <!-- Modal Tạo Admin -->
+            <div class="modal fade" id="createModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Tạo Admin mới</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                         </div>
-                        <div class="mb-3">
-                            <label for="content1" class="form-label">Nội dung 1</label>
-                            <textarea class="form-control" id="content1" rows="4" placeholder="Nhập nội dung 1"></textarea>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="newName" class="form-label">Họ và tên</label>
+                                <input type="text" class="form-control" id="newName">
+                            </div>
+                            <div class="mb-3">
+                                <label for="newEmail" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="newEmail">
+                            </div>
+                            <div class="mb-3">
+                                <label for="newPassword" class="form-label">Mật khẩu</label>
+                                <input type="password" class="form-control" id="newPassword">
+                            </div>
+                            <div class="mb-3">
+                                <label for="newPhone" class="form-label">Số điện thoại</label>
+                                <input type="tel" class="form-control" id="newPhone">
+                            </div>
                         </div>
-                        <!-- Phần 2 -->
-                        <div class="mb-3">
-                            <label for="title2" class="form-label">Tiêu đề 2</label>
-                            <input type="text" class="form-control" id="title2" placeholder="Nhập tiêu đề 2">
-                        </div>
-                        <div class="mb-3">
-                            <label for="content2" class="form-label">Nội dung 2</label>
-                            <textarea class="form-control" id="content2" rows="4" placeholder="Nhập nội dung 2"></textarea>
-                        </div>
-                        <!-- Phần 3 -->
-                        <div class="mb-3">
-                            <label for="title3" class="form-label">Tiêu đề 3</label>
-                            <input type="text" class="form-control" id="title3" placeholder="Nhập tiêu đề 3">
-                        </div>
-                        <div class="mb-3">
-                            <label for="content3" class="form-label">Nội dung 3</label>
-                            <textarea class="form-control" id="content3" rows="4" placeholder="Nhập nội dung 3"></textarea>
-                        </div>
-                        <!-- Nút lưu -->
-                        <div class="d-flex gap-2">
-                            <button class="btn btn-primary" onclick="saveIntroduction()">Lưu thay đổi</button>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                            <button type="button" class="btn btn-primary" id="createBtn">Tạo</button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <footer>
-                <div class="footer clearfix mb-0 text-muted">
-                    <div class="float-start">
-                        <p>2025 © Mazer</p>
-                    </div>
-                    <div class="float-end">
-                        <p>Crafted with <span class="text-danger"><i class="bi bi-heart-fill icon-mid"></i></span>
-                            by <a href="https://saugi.me">Saugi</a></p>
+            <!-- Modal Xóa -->
+            <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-sm">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Xác nhận</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">Bạn có chắc muốn xóa tài khoản này?</div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                            <button type="button" class="btn btn-danger" id="deleteConfirmBtn">Xóa</button>
+                        </div>
                     </div>
                 </div>
-            </footer>
+            </div>
         </div>
+    </div>
+
     </div>
 
     <script src="../../assets/static/js/components/dark.js"></script>
     <script src="../../assets/extensions/perfect-scrollbar/perfect-scrollbar.min.js"></script>
     <script src="../../assets/compiled/js/app.js"></script>
-    <script src="./intro.js"></script>
+    <script src="../../assets/extensions/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="Account.js"></script>
+
 </body>
 
 </html>

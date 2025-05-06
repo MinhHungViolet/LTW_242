@@ -70,111 +70,74 @@
                 <div class="sidebar-menu">
                     <ul class="menu">
                         <li class="sidebar-title">Menu</li>
-
                         <li class="sidebar-item active ">
                             <a href="../../adminPage/HomePage.html" class='sidebar-link'>
                                 <i class="bi bi-grid-fill"></i>
                                 <span>Dashboard</span>
                             </a>
-
-
                         </li>
-
                         <li class="sidebar-item  has-sub">
                             <a href="#" class='sidebar-link'>
                                 <i class="bi bi-stack"></i>
                                 <span>Trang chủ - Liên hệ</span>
                             </a>
-
                             <ul class="submenu ">
-
                                 <li class="submenu-item  ">
                                     <a href="component-accordion.html" class="submenu-link">Trang chủ</a>
-
                                 </li>
-
                                 <li class="submenu-item  ">
                                     <a href="component-alert.html" class="submenu-link">Trang liên hệ</a>
-
                                 </li>
-
-
-
                             </ul>
-
-
                         </li>
-
                         <li class="sidebar-item  has-sub">
                             <a href="#" class='sidebar-link'>
                                 <i class="bi bi-collection-fill"></i>
                                 <span>Giới thiệu - Hỏi đáp</span>
                             </a>
-
                             <ul class="submenu ">
-
                                 <li class="submenu-item  ">
                                     <a href="extra-component-avatar.html" class="submenu-link">Giới thiệu</a>
-
                                 </li>
-
                                 <li class="submenu-item  ">
                                     <a href="extra-component-divider.html" class="submenu-link">Hỏi đáp</a>
-
                                 </li>
-
                             </ul>
-
-
                         </li>
-
                         <li class="sidebar-item  has-sub">
                             <a href="#" class='sidebar-link'>
                                 <i class="bi bi-grid-1x2-fill"></i>
                                 <span>Sản phẩm - Đơn hàng</span>
                             </a>
-
                             <ul class="submenu ">
-
                                 <li class="submenu-item  ">
                                     <a href="../Product/Product.html" class="submenu-link">Sản phẩm</a>
-
                                 </li>
-
                                 <li class="submenu-item  ">
                                     <a href="../Order/Order.html" class="submenu-link">Đơn hàng</a>
-
                                 </li>
-
                             </ul>
-
-
                         </li>
-
                         <li class="sidebar-item  has-sub">
                             <a href="#" class='sidebar-link'>
                                 <i class="bi bi-grid-1x2-fill"></i>
                                 <span>Bài viết</span>
                             </a>
-
                             <ul class="submenu ">
-
                                 <li class="submenu-item  ">
                                     <a href="layout-default.html" class="submenu-link">Danh sách bài viết</a>
-
                                 </li>
-
                                 <li class="submenu-item  ">
                                     <a href="layout-vertical-1-column.html" class="submenu-link">Đọc bài viết</a>
-
                                 </li>
-
                             </ul>
-
-
                         </li>
-
-
+                        <li class="sidebar-item ">
+                            <a href="./Account/Account.html" class='sidebar-link'>
+                                <i class="bi bi-grid-1x2-fill"></i>
+                                <span>Quản lí</span>
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -203,7 +166,8 @@
                     </div>
                     <div class="col-md-4">
                         <label for="filterCategory" class="form-label">Số điện thoại khách hàng:</label>
-                        <input type="tel" maxlength="10" class="form-control" id="filterPhoneNum" oninput="this.value = this.value.replace(/[^0-9]/g, ''); filterOrders()">
+                        <input type="tel" maxlength="10" class="form-control" id="filterPhoneNum"
+                            oninput="this.value = this.value.replace(/[^0-9]/g, ''); filterOrders()">
 
                     </div>
                     <div class="col-md-4">
@@ -225,8 +189,8 @@
                         <tbody id="orderTableBody"></tbody>
                     </table>
                 </div>
-                
-                
+
+
                 <div id="pagination" class="mt-3"></div>
 
             </div>
