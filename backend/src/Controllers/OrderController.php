@@ -237,7 +237,59 @@ class OrderController {
         }
     }
 
-    // Thêm các hàm khác cho Order sau này (vd: getOrderHistory, getOrderDetail...)
+    public function getOrderDetail(object $userPayload, int $orderId): void {
+        $userId = $userPayload->userId; // Lấy userId của người dùng đang đăng nhập
+    
+        // Validate orderId cơ bản
+        if ($orderId <= 0) {
+            $this->sendResponse(400, ['error' => 'ID đơn hàng không hợp lệ.']);
+            return;
+        }
+    
+        try {
+            // 1. Lấy thông tin đơn hàng chính và kiểm tra xem có đúng là của user này không
+            $sqlOrder = "SELECT orderId, address, totalPrice, method, date, status, userId
+                         FROM purchased_order
+                         WHERE orderId = ? AND userId = ?"; // *** Quan trọng: Thêm AND userId = ? ***
+            $stmtOrder = $this->db->prepare($sqlOrder);
+            $stmtOrder->execute([$orderId, $userId]);
+            $orderData = $stmtOrder->fetch(PDO::FETCH_ASSOC);
+    
+            // Nếu không tìm thấy đơn hàng hoặc đơn hàng không thuộc user này -> trả về 404
+            // (Không nên phân biệt rõ ràng giữa "không tồn tại" và "không có quyền" để tránh lộ thông tin)
+            if (!$orderData) {
+                error_log("Attempt to access order {$orderId} by user {$userId} failed or order does not exist.");
+                $this->sendResponse(404, ['error' => "Không tìm thấy đơn hàng với ID = {$orderId}."]);
+                return;
+            }
+    
+            // 2. Lấy danh sách các sản phẩm (items) trong đơn hàng đó
+            $sqlItems = "SELECT
+                             pocp.productId,
+                             p.name AS productName,
+                             p.image AS productImage,
+                             pocp.number AS quantity,
+                             pocp.price_at_purchase  -- Giá sản phẩm tại thời điểm mua hàng
+                         FROM purchased_order_contain_product pocp
+                         JOIN product p ON pocp.productId = p.productId
+                         WHERE pocp.orderId = ?";
+            $stmtItems = $this->db->prepare($sqlItems);
+            $stmtItems->execute([$orderId]);
+            $items = $stmtItems->fetchAll(PDO::FETCH_ASSOC);
+    
+            // 3. Gắn danh sách items vào dữ liệu đơn hàng chính
+            $orderData['items'] = $items;
+            // Có thể bỏ userId khỏi kết quả trả về cuối cùng nếu muốn
+            // unset($orderData['userId']);
+    
+            // 4. Trả về kết quả thành công
+            $this->sendResponse(200, $orderData);
+    
+        } catch (PDOException $e) {
+            error_log("API Error (OrderController::getOrderDetail order {$orderId}, user {$userId}): " . $e->getMessage());
+            $this->sendResponse(500, ['error' => 'Lỗi máy chủ nội bộ khi lấy chi tiết đơn hàng.']);
+        }
+    }
 
 } // Kết thúc class OrderController
 ?>

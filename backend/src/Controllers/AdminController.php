@@ -299,6 +299,56 @@ class AdminController {
              $this->sendResponse(500, ['error' => 'Lỗi máy chủ nội bộ khi cập nhật trạng thái đơn hàng.']);
         }
     }
+    public function getOrderDetailAsAdmin(int $orderId): void {
+        // Validate orderId cơ bản
+        if ($orderId <= 0) {
+            $this->sendResponse(400, ['error' => 'ID đơn hàng không hợp lệ.']);
+            return;
+        }
+    
+        try {
+            // 1. Lấy thông tin đơn hàng chính và JOIN với bảng user để lấy thông tin người đặt
+            $sqlOrder = "SELECT
+                             po.orderId, po.address, po.totalPrice, po.method, po.date, po.status,
+                             po.userId, u.name as customerName, u.email as customerEmail
+                         FROM purchased_order po
+                         JOIN user u ON po.userId = u.userId
+                         WHERE po.orderId = ?"; // *** Không cần kiểm tra userId của admin ở đây ***
+            $stmtOrder = $this->db->prepare($sqlOrder);
+            $stmtOrder->execute([$orderId]);
+            $orderData = $stmtOrder->fetch(PDO::FETCH_ASSOC);
+    
+            // Nếu không tìm thấy đơn hàng với ID này
+            if (!$orderData) {
+                $this->sendResponse(404, ['error' => "Không tìm thấy đơn hàng với ID = {$orderId}."]);
+                return;
+            }
+    
+            // 2. Lấy danh sách sản phẩm trong đơn hàng đó (Giống như getOrderDetail của User)
+            $sqlItems = "SELECT
+                             pocp.productId,
+                             p.name AS productName,
+                             p.image AS productImage,
+                             pocp.number AS quantity,
+                             pocp.price_at_purchase
+                         FROM purchased_order_contain_product pocp
+                         JOIN product p ON pocp.productId = p.productId
+                         WHERE pocp.orderId = ?";
+            $stmtItems = $this->db->prepare($sqlItems);
+            $stmtItems->execute([$orderId]);
+            $items = $stmtItems->fetchAll(PDO::FETCH_ASSOC);
+    
+            // 3. Gắn mảng items vào thông tin đơn hàng chính
+            $orderData['items'] = $items;
+    
+            // 4. Trả về kết quả thành công
+            $this->sendResponse(200, $orderData);
+    
+        } catch (PDOException $e) {
+            error_log("API Error (AdminController::getOrderDetailAsAdmin order {$orderId}): " . $e->getMessage());
+            $this->sendResponse(500, ['error' => 'Lỗi máy chủ nội bộ khi lấy chi tiết đơn hàng cho admin.']);
+        }
+    }
 
 } // Kết thúc class AdminController
 ?>
