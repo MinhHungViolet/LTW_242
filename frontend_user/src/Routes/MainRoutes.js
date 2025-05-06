@@ -11,36 +11,36 @@ import UserInfo from "../UserInfo/UserInfo";
 
 const MainRoutes = [
     {
-        path: "/",
+        path: "/user_app",
         // element: <Introduction />,
         element: <Home />
     },
     {
-        path: "/purchase",
+        path: "/user_app/purchase",
         element: <Purchase />,
     },
     {
-        path: "/product",
+        path: "/user_app/product",
         element: <ProductList />
     },
     {
-        path: "/introduction",
+        path: "/user_app/introduction",
         element: <Introduction />,
     },
     {
-        path: "/news",
+        path: "/user_app/news",
         element: <NewsSection />,
     },
     {
-        path: "/news/:id",
+        path: "/user_app/news/:id",
         element: <NewsDetail />,
     },
     {
-        path: "/question",
+        path: "/user_app/question",
         element: <Question />,
     },
     {
-        path: "/user",
+        path: "/user_app/user",
         element: <UserInfo />
     },
 ];

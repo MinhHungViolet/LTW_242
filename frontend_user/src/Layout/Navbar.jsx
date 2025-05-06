@@ -111,12 +111,12 @@ const Navbar = () => {
             <div className="bg-white flex flex-row items-center justify-between p-2 shadow-md ">
                 {/* Phần Menu Desktop (Giữ nguyên) */}
                 <div className="hidden lg:flex flex-row justify-between w-auto lg:w-[36rem] ml-5 text-[#3f3f3e] text-lg font-semibold ">
-                    <a href="/" className='hover:text-[#495DE5] transition-all duration-300 p-2'>Trang chủ</a>
-                    <a href="/product" className='hover:text-[#495DE5] transition-all duration-300 p-2'>Sản phẩm</a>
-                    <a href="/news" className='hover:text-[#495DE5] transition-all duration-300 p-2'>Bài viết</a>
-                    <a href="/question" className='hover:text-[#495DE5] transition-all duration-300 p-2'>Hỏi đáp</a>
-                    <a href="/contact" className='hover:text-[#495DE5] transition-all duration-300 p-2'>Liên hệ</a>
-                    <a href="/introduction" className='hover:text-[#495DE5] transition-all duration-300 p-2'>Giới thiệu</a>
+                    <a href="/user_app" className='hover:text-[#495DE5] transition-all duration-300 p-2'>Trang chủ</a>
+                    <a href="/user_app/product" className='hover:text-[#495DE5] transition-all duration-300 p-2'>Sản phẩm</a>
+                    <a href="/user_app/news" className='hover:text-[#495DE5] transition-all duration-300 p-2'>Bài viết</a>
+                    <a href="/user_app/question" className='hover:text-[#495DE5] transition-all duration-300 p-2'>Hỏi đáp</a>
+                    <a href="/user_app/contact" className='hover:text-[#495DE5] transition-all duration-300 p-2'>Liên hệ</a>
+                    <a href="/user_app/introduction" className='hover:text-[#495DE5] transition-all duration-300 p-2'>Giới thiệu</a>
                 </div>
 
                 {/* Nút Hamburger (Giữ nguyên) */}
