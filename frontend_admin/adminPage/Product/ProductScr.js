@@ -47,6 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Hàm hiển thị sản phẩm lên bảng
     function renderProducts(list) {
         productTableBody.innerHTML = '';
+        console.log("Check list: ", list)
         list.forEach(p => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
@@ -54,6 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td>${p.name}</td>
                 <td>${p.price}</td>
                 <td>${p.category}</td>
+                <td>${p.color}</td>
                 <td>
                     <button class="btn btn-sm btn-warning me-1" onclick="openModal(${p.productId})">Sửa</button>
                     <button class="btn btn-sm btn-danger" onclick="confirmDelete(${p.productId})">Xóa</button>
@@ -126,6 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
         formData.append('price', productPriceInput.value);
         formData.append('stock_quantity', productStockInput.value.trim());
         formData.append('category', productCategoryInput.value);
+        formData.append('color', productColorInput.value);
         formData.append('description', '');
         if (productFileInput.files[0]) {
             formData.append('productImage', productFileInput.files[0]);

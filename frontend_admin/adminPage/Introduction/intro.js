@@ -1,8 +1,8 @@
 const API_URL = 'http://localhost/backend/public/introduction';
-
+const token = localStorage.getItem('adminToken');
 async function fetchIntroduction() {
     try {
-        const token = localStorage.getItem('token');
+        // const token = localStorage.getItem('token');
         const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
         
         const response = await fetch(API_URL, {
@@ -39,7 +39,7 @@ async function saveIntroduction() {
     }
 
     try {
-        const token = localStorage.getItem('token');
+        // const token = localStorage.getItem('token');
         if (!token) {
             alert('Vui lòng đăng nhập để chỉnh sửa nội dung.');
             return;
