@@ -99,11 +99,11 @@ import React, { useState, useEffect } from "react"; // Giữ lại useEffect vì
              <div className="bg-white flex flex-row items-center justify-between p-2 shadow-md ">
                  {/* Phần Menu Desktop (Giữ nguyên) */}
                  <div className="hidden lg:flex flex-row justify-between w-auto lg:w-[36rem] ml-5 text-[#3f3f3e] text-lg font-semibold ">
-                     <a href="/" className='hover:text-[#495DE5] transition-all duration-300 p-2'>Trang chủ</a>
+                     <a href="/introduction" className='hover:text-[#495DE5] transition-all duration-300 p-2'>Trang chủ</a>
                      <a href="/product" className='hover:text-[#495DE5] transition-all duration-300 p-2'>Sản phẩm</a>
                      <a href="/news" className='hover:text-[#495DE5] transition-all duration-300 p-2'>Bài viết</a>
                      <a href="/question" className='hover:text-[#495DE5] transition-all duration-300 p-2'>Hỏi đáp</a>
-                     <a href="/contact" className='hover:text-[#495DE5] transition-all duration-300 p-2'>Liên hệ</a>
+                     <a href="/introduction" className='hover:text-[#495DE5] transition-all duration-300 p-2'>Liên hệ</a>
                      <a href="/introduction" className='hover:text-[#495DE5] transition-all duration-300 p-2'>Giới thiệu</a>
                  </div>
 
@@ -168,11 +168,11 @@ import React, { useState, useEffect } from "react"; // Giữ lại useEffect vì
                   transition={{ duration: 0.4, ease: "easeOut" }}
                   className="lg:hidden fixed top-0 left-0 h-full w-3/4 max-w-xs origin-left flex flex-col items-start pt-20 p-5 space-y-1 bg-white text-lg font-semibold shadow-lg z-[55]"
               >
-                   <li className='w-full border-b border-gray-100'><a href="/" className='block p-3 rounded hover:bg-gray-100 w-full text-left text-base'>Trang chủ</a></li>
+                   <li className='w-full border-b border-gray-100'><a href="/introduction" className='block p-3 rounded hover:bg-gray-100 w-full text-left text-base'>Trang chủ</a></li>
                    <li className='w-full border-b border-gray-100'><a href="/product" className='block p-3 rounded hover:bg-gray-100 w-full text-left text-base'>Sản phẩm</a></li>
                    <li className='w-full border-b border-gray-100'><a href="/news" className='block p-3 rounded hover:bg-gray-100 w-full text-left text-base'>Bài viết</a></li>
                    <li className='w-full border-b border-gray-100'><a href="/question" className='block p-3 rounded hover:bg-gray-100 w-full text-left text-base'>Hỏi đáp</a></li>
-                   <li className='w-full border-b border-gray-100'><a href="/contact" className='block p-3 rounded hover:bg-gray-100 w-full text-left text-base'>Liên hệ</a></li>
+                   <li className='w-full border-b border-gray-100'><a href="/introduction" className='block p-3 rounded hover:bg-gray-100 w-full text-left text-base'>Liên hệ</a></li>
                    <li className='w-full'><a href="/introduction" className='block p-3 rounded hover:bg-gray-100 w-full text-left text-base'>Giới thiệu</a></li>
                    {/* Phần đăng nhập/đăng xuất mobile đã được xóa */}
               </motion.ul>
