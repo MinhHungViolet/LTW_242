@@ -17,7 +17,7 @@ const Header = () => {
 
     const handleLogout = () => {
         logout();
-        setIsClickedLogin(false); // Đảm bảo modal login đóng khi logout
+        setIsClickedLogin(false);
     };
 
     console.log("Người dùng header", user);
@@ -50,8 +50,6 @@ const Header = () => {
                     </div>
                 )}
             </div>
-
-            {/* ToastContainer để ngoài div chính để tránh bị ảnh hưởng bởi flex layout */}
             <ToastContainer
                 position="top-right"
                 autoClose={2000}

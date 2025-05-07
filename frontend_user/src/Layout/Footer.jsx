@@ -18,8 +18,6 @@ const Footer = () => {
                         <img src={LogoBK} alt="" className="size-12 max-sm:size-8" />
                         <p className="font-bold text-2xl max-sm:text-xl">TRENDY STORE</p>
                     </div>
-
-                    {/* Kết nối với chúng tôi luôn dưới logo */}
                     <div className="flex flex-col items-start gap-2">
                         <p className="text-lg font-bold">KẾT NỐI VỚI CHÚNG TÔI</p>
                         <div className="flex flex-row gap-3 mt-1">

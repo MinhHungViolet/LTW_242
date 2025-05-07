@@ -1,55 +1,50 @@
-import React, { useState, useEffect, useCallback } from 'react'; // Thêm React và useCallback
-import { motion } from 'framer-motion'; // Giữ lại motion nếu bạn muốn dùng animation
-import { Plus, Minus, Trash2 } from "lucide-react"; // Thêm icon Trash2 nếu muốn nút xóa riêng
+import React, { useState, useEffect, useCallback } from 'react';
+import { motion } from 'framer-motion';
+import { Plus, Minus, Trash2 } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext'; // Import useAuth
-import axios from 'axios';                   // Import axios
-import { toast } from 'react-toastify';      // Import toast
-import defaultProductImage from '../Images/product.png'; // Import ảnh mặc định
+import { useAuth } from '../contexts/AuthContext';
+import axios from 'axios';
+import { toast } from 'react-toastify'; 
+import defaultProductImage from '../Images/product.png';
 
-// --- Định nghĩa BASE URL ---
 const API_BASE_URL = "http://localhost/backend/public";
-const IMAGE_BASE_URL = "http://localhost/backend/public"; // Hoặc http://localhost
+const IMAGE_BASE_URL = "http://localhost/backend/public";
 
 const Purchase = () => {
     const navigate = useNavigate();
-    const { user: authUser, token, isLoading: authLoading } = useAuth(); // Lấy token
+    const { user: authUser, token, isLoading: authLoading } = useAuth();
 
-    // --- State ---
-    const [cartItems, setCartItems] = useState([]); // State cho giỏ hàng từ API
+    const [cartItems, setCartItems] = useState([]); 
     const [isLoadingCart, setIsLoadingCart] = useState(true);
     const [isUpdatingCart, setIsUpdatingCart] = useState(false);
     const [isPlacingOrder, setIsPlacingOrder] = useState(false);
     const [error, setError] = useState(null);
 
-    // State cho địa chỉ
     const [provinces, setProvinces] = useState([]);
     const [districts, setDistricts] = useState([]);
     const [wards, setWards] = useState([]);
-    const [selectedProvince, setSelectedProvince] = useState({ code: "", name: "" }); // Lưu cả code và name
-    const [selectedDistrict, setSelectedDistrict] = useState({ code: "", name: "" }); // Lưu cả code và name
-    const [selectedWard, setSelectedWard] = useState({ code: "", name: "" });       // Lưu cả code và name
-    const [specificAddress, setSpecificAddress] = useState(""); // State cho địa chỉ cụ thể
+    const [selectedProvince, setSelectedProvince] = useState({ code: "", name: "" });
+    const [selectedDistrict, setSelectedDistrict] = useState({ code: "", name: "" });
+    const [selectedWard, setSelectedWard] = useState({ code: "", name: "" });
+    const [specificAddress, setSpecificAddress] = useState("");
 
-    // State cho phương thức thanh toán
-    const [paymentMethod, setPaymentMethod] = useState(""); // Lưu value của radio button được chọn
+    const [paymentMethod, setPaymentMethod] = useState("");
 
-    // --- Fetch Địa Chỉ Hành Chính (Giữ nguyên) ---
     useEffect(() => {
         fetch("https://provinces.open-api.vn/api/p/").then((res) => res.json()).then((data) => setProvinces(data.sort((a, b) => a.name.localeCompare(b.name))));
     }, []);
 
     const handleProvinceChange = (e) => {
         const provinceCode = e.target.value;
-        const provinceName = e.target.options[e.target.selectedIndex].text; // Lấy tên từ option
+        const provinceName = e.target.options[e.target.selectedIndex].text;
         setSelectedProvince({ code: provinceCode, name: provinceName === "Tỉnh / Thành phố" ? "" : provinceName });
         setSelectedDistrict({ code: "", name: "" });
         setSelectedWard({ code: "", name: "" });
-        setWards([]); // Reset xã/phường
+        setWards([]);
         if (provinceCode) {
             fetch(`https://provinces.open-api.vn/api/p/${provinceCode}?depth=2`).then((res) => res.json()).then((data) => setDistricts(data.districts.sort((a, b) => a.name.localeCompare(b.name))));
         } else {
-            setDistricts([]); // Reset quận/huyện nếu không chọn tỉnh
+            setDistricts([]);
         }
     };
 
@@ -61,7 +56,7 @@ const Purchase = () => {
         if (districtCode) {
             fetch(`https://provinces.open-api.vn/api/d/${districtCode}?depth=2`).then((res) => res.json()).then((data) => setWards(data.wards.sort((a, b) => a.name.localeCompare(b.name))));
         } else {
-            setWards([]); // Reset xã/phường nếu không chọn quận/huyện
+            setWards([]);
         }
     }
 
@@ -71,19 +66,17 @@ const Purchase = () => {
         setSelectedWard({ code: wardCode, name: wardName === "Phường / Xã" ? "" : wardName });
     };
 
-    // --- Fetch Giỏ Hàng Từ API ---
     const fetchCart = useCallback(async () => {
-        if (!token) { setIsLoadingCart(false); return; } // Không fetch nếu không có token
+        if (!token) { setIsLoadingCart(false); return; }
         setIsLoadingCart(true); setError(null);
         try {
             const headers = { Authorization: `Bearer ${token}` };
             const response = await axios.get(`${API_BASE_URL}/cart`, { headers });
             if (response.status === 200 && response.data) {
-                // Quan trọng: Chuyển đổi quantity từ API (có thể là string) thành number
                 const itemsWithNumbers = response.data.items.map(item => ({
                      ...item,
-                     quantity: parseInt(item.quantity, 10) || 1, // Chuyển sang số, mặc định là 1 nếu lỗi
-                     price: parseFloat(item.price) || 0 // Chuyển giá sang số
+                     quantity: parseInt(item.quantity, 10) || 1,
+                     price: parseFloat(item.price) || 0
                  }));
                 setCartItems(itemsWithNumbers);
             } else { throw new Error("Lỗi khi tải giỏ hàng"); }
@@ -94,20 +87,17 @@ const Purchase = () => {
         } finally { setIsLoadingCart(false); }
     }, [token]);
 
-    // Gọi fetchCart khi component mount và có token
     useEffect(() => {
         if (!authLoading) { fetchCart(); }
     }, [authLoading, token, fetchCart]);
 
-    // --- Xử Lý Thay Đổi Số Lượng (Cập nhật State Local) ---
     const decreaseQuantity = (productId) => {
         setCartItems((prevCart) =>
             prevCart.map((item) =>
                 item.productId === productId
-                    ? { ...item, quantity: Math.max(1, item.quantity - 1) } // Giảm nhưng không dưới 1
+                    ? { ...item, quantity: Math.max(1, item.quantity - 1) }
                     : item
             )
-            // Không xóa item ở đây, chỉ giảm về 1. Việc xóa sẽ do nút "Cập nhật" hoặc backend xử lý nếu quantity là 0 khi gửi đi
         );
     };
 
@@ -115,26 +105,18 @@ const Purchase = () => {
         setCartItems((prevCart) =>
             prevCart.map((item) =>
                 item.productId === productId
-                    // Cần kiểm tra tồn kho ở đây nếu có thông tin tồn kho trong cartItems
-                    // Hoặc dựa vào kiểm tra của backend khi nhấn "Cập nhật giỏ hàng" / "Đặt hàng"
                     ? { ...item, quantity: item.quantity + 1 }
                     : item
             )
         );
     };
 
-    // Hàm xử lý khi thay đổi trực tiếp ô input số lượng
      const handleQuantityInputChange = (productId, value) => {
          let newQuantity = parseInt(value, 10);
          if (isNaN(newQuantity) || newQuantity < 1) {
-             newQuantity = 1; // Đặt lại là 1 nếu nhập không hợp lệ hoặc xóa hết
+             newQuantity = 1;
          }
-          // Optional: Client-side stock check if available
-         // const item = cartItems.find(i => i.productId === productId);
-         // if (item && item.stock_quantity && newQuantity > item.stock_quantity) {
-         //     newQuantity = item.stock_quantity;
-         //     toast.warn(`Chỉ còn ${item.stock_quantity} sản phẩm tồn kho.`);
-         // }
+
          setCartItems((prevCart) =>
              prevCart.map((item) =>
                  item.productId === productId ? { ...item, quantity: newQuantity } : item
@@ -142,13 +124,11 @@ const Purchase = () => {
          );
      };
 
-    // --- Hàm Gọi API Cập Nhật Giỏ Hàng ---
     const handleUpdateCart = async () => {
          if (isUpdatingCart || !token) return;
          setIsUpdatingCart(true); setError(null);
          try {
              const headers = { Authorization: `Bearer ${token}` };
-             // Tạo payload chỉ chứa các item có quantity >= 1
              const itemsToUpdate = cartItems
                  .filter(item => item.quantity >= 1)
                  .map(item => ({ productId: item.productId, quantity: item.quantity }));
@@ -158,7 +138,6 @@ const Purchase = () => {
              const response = await axios.put(`${API_BASE_URL}/cart`, { items: itemsToUpdate }, { headers });
 
              if (response.status === 200 && response.data) {
-                 // Cập nhật lại state với giỏ hàng trả về từ server để đảm bảo đồng bộ
                   const updatedItemsWithNumbers = response.data.items.map(item => ({
                       ...item,
                       quantity: parseInt(item.quantity, 10) || 1,
@@ -173,19 +152,14 @@ const Purchase = () => {
               console.error("Error updating cart:", err.response || err);
               setError(err.response?.data?.error || "Không thể cập nhật giỏ hàng.");
               toast.error(err.response?.data?.error || "Lỗi khi cập nhật giỏ hàng!");
-              // Có thể fetch lại giỏ hàng để quay về trạng thái trước đó nếu muốn
-              // fetchCart();
          } finally {
               setIsUpdatingCart(false);
          }
     };
 
-    // --- Hàm Gọi API Đặt Hàng ---
     const handlePlaceOrder = async (event) => {
-         event.preventDefault(); // Ngăn form submit mặc định
+         event.preventDefault();
          if (isPlacingOrder || !token) return;
-
-         // Validate thông tin trước khi đặt hàng
          if (cartItems.length === 0) {
              toast.error("Giỏ hàng đang trống, không thể đặt hàng."); return;
          }
@@ -198,15 +172,9 @@ const Purchase = () => {
 
          setIsPlacingOrder(true); setError(null);
 
-         // Tạo địa chỉ đầy đủ
          const fullAddress = `${specificAddress.trim()}, ${selectedWard.name}, ${selectedDistrict.name}, ${selectedProvince.name}`;
 
          try {
-              // **Tùy chọn:** Gọi handleUpdateCart() một lần nữa trước khi đặt hàng
-              // để đảm bảo số lượng trên server là mới nhất (nếu người dùng sửa mà chưa nhấn Cập nhật)
-              // await handleUpdateCart();
-              // Nếu bước trên có lỗi thì không thực hiện tiếp
-
              console.log("Placing order with data:", { address: fullAddress, method: paymentMethod });
              const headers = { Authorization: `Bearer ${token}` };
              const body = {
@@ -220,22 +188,17 @@ const Purchase = () => {
 
              if (response.status === 201 && response.data.orderId) {
                   toast.success(`Đặt hàng thành công! Mã đơn hàng của bạn là #${response.data.orderId}`);
-                  setCartItems([]); // Xóa giỏ hàng ở state local
-                //   setSubtotal(0);
-                  // Điều hướng đến trang cảm ơn hoặc lịch sử đơn hàng
-                  navigate('/order-success', { state: { orderId: response.data.orderId } }); // Ví dụ điều hướng
-                  // Hoặc navigate('/user-info'); // Về trang user info để xem lịch sử
+                  setCartItems([]); 
+                  navigate('/order-success', { state: { orderId: response.data.orderId } });
              } else {
                    throw new Error(response.data?.message || response.data?.error || "Đặt hàng thất bại.");
              }
 
          } catch (err) {
               console.error("Error placing order:", err.response || err);
-              // Xử lý lỗi hết hàng từ backend trả về (nếu có)
-              if (err.response?.status === 409) { // Giả sử backend trả 409 khi hết hàng
+              if (err.response?.status === 409) {
                   const errorData = err.response.data;
                   toast.error(`Lỗi đặt hàng: ${errorData.error} (Sản phẩm ID: ${errorData.productId})`);
-                  // Có thể cần fetch lại giỏ hàng để cập nhật số lượng tồn kho đúng
                   fetchCart();
               } else {
                    const errorMessage = err.response?.data?.error || "Đã xảy ra lỗi khi đặt hàng.";
@@ -247,14 +210,12 @@ const Purchase = () => {
          }
     };
 
-    // Tính tổng tiền dựa trên state local cartItems
     const calculateTotal = () => {
         return cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
     };
 
-    // --- JSX ---
     return (
-        <div className="p-4 md:p-10 flex flex-col lg:flex-row justify-around gap-8"> {/* Responsive layout và gap */}
+        <div className="p-4 md:p-10 flex flex-col lg:flex-row justify-around gap-8"> 
 
             {/* Cột Giỏ Hàng */}
             <div className='w-full lg:w-[60%]'>
@@ -263,7 +224,7 @@ const Purchase = () => {
                  {error && <p className="text-red-500">{error}</p>}
                  {!isLoadingCart && cartItems.length === 0 && <p>Chưa có sản phẩm nào trong giỏ hàng.</p>}
                  {!isLoadingCart && cartItems.length > 0 && (
-                    <div className="overflow-x-auto"> {/* Thêm scroll ngang nếu bảng quá rộng */}
+                    <div className="overflow-x-auto">
                          <table className='w-full border-collapse'>
                              <thead>
                                  <tr className='border-b-2 border-gray-300 bg-gray-50'>
@@ -275,20 +236,17 @@ const Purchase = () => {
                              </thead>
                              <tbody>
                                  {cartItems.map((item) => (
-                                     <tr key={item.productId} className="text-center border-b border-gray-200"> {/* Dùng productId làm key */}
+                                     <tr key={item.productId} className="text-center border-b border-gray-200">
                                          <td className="p-3 text-left">
                                              <div className="flex flex-row items-center">
                                                  <img
                                                      src={item.image ? `${IMAGE_BASE_URL}/uploads/products/${item.image}` : defaultProductImage}
                                                      alt={item.name}
-                                                     className='w-16 h-16 object-cover mr-3 rounded flex-shrink-0' // Giảm kích thước ảnh, thêm flex-shrink
+                                                     className='w-16 h-16 object-cover mr-3 rounded flex-shrink-0'
                                                      onError={(e) => { e.target.onerror = null; e.target.src=defaultProductImage }}
                                                  />
                                                  <div className="flex flex-col items-start text-sm font-medium">
                                                      <h3 className="text-gray-800 mb-1">{item.name}</h3>
-                                                     {/* Bỏ màu và size nếu không có trong data giỏ hàng */}
-                                                     {/* <p className="text-gray-500 text-xs">Màu: {item.color}</p> */}
-                                                     {/* <p className="text-gray-500 text-xs">Size: {item.size}</p> */}
                                                  </div>
                                              </div>
                                          </td>
@@ -298,11 +256,10 @@ const Purchase = () => {
                                                   <button
                                                      className="p-1 border rounded text-gray-600 hover:bg-gray-100 disabled:opacity-50"
                                                      onClick={() => decreaseQuantity(item.productId)}
-                                                     disabled={item.quantity <= 1 || isUpdatingCart} // Disable khi đang update hoặc số lượng là 1
+                                                     disabled={item.quantity <= 1 || isUpdatingCart}
                                                   >
                                                      <Minus size={16} />
                                                   </button>
-                                                  {/* Thay thế <p> bằng <input> */}
                                                   <input
                                                        type="number"
                                                        min="1"
@@ -314,8 +271,7 @@ const Purchase = () => {
                                                   <button
                                                        className="p-1 border rounded text-gray-600 hover:bg-gray-100 disabled:opacity-50"
                                                        onClick={() => increaseQuantity(item.productId)}
-                                                       disabled={isUpdatingCart} // Disable khi đang update
-                                                       // Thêm disable dựa trên stock nếu có: disabled={isUpdatingCart || (item.stock_quantity && item.quantity >= item.stock_quantity)}
+                                                       disabled={isUpdatingCart}
                                                     >
                                                        <Plus size={16} />
                                                   </button>
@@ -326,7 +282,6 @@ const Purchase = () => {
                                  ))}
                              </tbody>
                              <tfoot>
-                                 {/* Loại bỏ phần Discount Code */}
                                  <tr className='border-t-2 border-gray-300'>
                                      <td colSpan="4" className="text-right py-4 pr-4">
                                          <button
@@ -353,7 +308,6 @@ const Purchase = () => {
                          <span className="text-gray-600">Tạm tính:</span>
                          <span className="text-gray-800">{calculateTotal().toLocaleString()} VND</span>
                     </div>
-                     {/* Thêm các dòng phí khác nếu có (vd: vận chuyển) */}
                      <div className="flex justify-between font-semibold text-lg mt-2">
                          <span>Tổng cộng:</span>
                          <span className="text-indigo-600">{calculateTotal().toLocaleString()} VND</span>
@@ -369,11 +323,11 @@ const Purchase = () => {
                         </label>
                         <label className="flex items-center space-x-3 p-3 border rounded-md hover:border-indigo-500 cursor-pointer">
                             <input type="radio" name="paymentMethod" value="Card" checked={paymentMethod === 'Card'} onChange={(e) => setPaymentMethod(e.target.value)} className="accent-indigo-600"/>
-                             <span className='text-sm'>Thẻ Tín dụng/Ghi nợ</span> {/* Sửa lại */}
+                             <span className='text-sm'>Thẻ Tín dụng/Ghi nợ</span> 
                         </label>
                          <label className="flex items-center space-x-3 p-3 border rounded-md hover:border-indigo-500 cursor-pointer">
                             <input type="radio" name="paymentMethod" value="BankTransfer" checked={paymentMethod === 'BankTransfer'} onChange={(e) => setPaymentMethod(e.target.value)} className="accent-indigo-600"/>
-                             <span className='text-sm'>Chuyển khoản ngân hàng</span> {/* Thêm tùy chọn */}
+                             <span className='text-sm'>Chuyển khoản ngân hàng</span> 
                          </label>
                     </div>
                 </div>
@@ -396,8 +350,8 @@ const Purchase = () => {
                 </div>
 
                 <button
-                     type="submit" // Để kích hoạt onSubmit của form
-                     disabled={isPlacingOrder || isLoadingCart || cartItems.length === 0} // Disable nếu đang xử lý hoặc giỏ hàng trống
+                     type="submit"
+                     disabled={isPlacingOrder || isLoadingCart || cartItems.length === 0}
                      className="w-full bg-red-600 text-white py-3 rounded-md font-semibold text-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed transition duration-150 ease-in-out"
                  >
                      {isPlacingOrder ? 'ĐANG XỬ LÝ...' : 'ĐẶT HÀNG'}
