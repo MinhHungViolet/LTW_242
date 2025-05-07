@@ -12,8 +12,7 @@ import UserInfo from "../UserInfo/UserInfo";
 const MainRoutes = [
     {
         path: "/",
-        // element: <Introduction />,
-        element: <Home />
+        element: <Introduction />
     },
     {
         path: "/purchase",

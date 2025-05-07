@@ -1,6 +1,6 @@
-// API base URL - adjust this based on your backend configuration
+
 const API_URL = 'http://localhost/backend/public/blog';
-const CATEGORIES_API_URL = 'http://localhost/backend/public/categories'; // URL for categories API
+const CATEGORIES_API_URL = 'http://localhost/backend/public/categories';
 
 // Global variables
 let currentPage = 1;
@@ -9,7 +9,7 @@ let postsPerPage = 10;
 let blogPosts = [];
 let currentPostId = null;
 let deletePostId = null;
-let blogCategories = []; // Store available categories
+let blogCategories = [];
 
 // DOM elements
 const blogModal = new bootstrap.Modal(document.getElementById('blogModal'));
@@ -42,18 +42,12 @@ document.addEventListener('DOMContentLoaded', function() {
 // Load categories from API
 async function loadCategories() {
     try {
-        // First check if we already have categories stored in localStorage
         const cachedCategories = localStorage.getItem('blogCategories');
         if (cachedCategories) {
             blogCategories = JSON.parse(cachedCategories);
             return;
         }
-        
-        // If no cached categories, fetch from API
-        // Note: This is a placeholder since we don't have an actual categories API endpoint
-        // In a real implementation, you would fetch categories from a dedicated endpoint
-        
-        // For now, we'll use some default categories
+
         blogCategories = [
             { id: 1, name: 'Tin tức', slug: 'tin-tuc' },
             { id: 2, name: 'Thời trang', slug: 'thoi-trang' },
@@ -66,7 +60,6 @@ async function loadCategories() {
         localStorage.setItem('blogCategories', JSON.stringify(blogCategories));
     } catch (error) {
         console.error('Error loading categories:', error);
-        // Fallback categories if API fails
         blogCategories = [
             { id: 5, name: 'Chưa phân loại', slug: 'uncategorized' }
         ];
@@ -75,7 +68,6 @@ async function loadCategories() {
 
 // Check if user is authenticated as admin
 function checkAdminAuth() {
-    // Check for adminToken which is the correct token name used after admin login
     const token = localStorage.getItem('adminToken');
     
     if (!token) {
@@ -83,9 +75,7 @@ function checkAdminAuth() {
         window.location.href = '../admin_login.html';
         return;
     }
-    
-    // You can add additional checks here if needed
-    // For example, verify that the token is valid or hasn't expired
+
     console.log('Admin authentication successful');
 }
 

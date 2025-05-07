@@ -25,7 +25,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const res = await fetch(API_URL, { headers: { 'Authorization': `Bearer ${token}` } });
             if (!res.ok) throw new Error('Không thể lấy danh sách đơn hàng');
             orders = await res.json();
-            // Nạp chi tiết items cho mỗi đơn
             await Promise.all(orders.map(async o => {
                 try {
                     const detailRes = await fetch(`${API_URL}/${o.orderId}`, { headers: { 'Authorization': `Bearer ${token}` } });

@@ -1,8 +1,4 @@
 <?php
-// src/Controllers/ProductController.php
-
-// use PDO;          // <-- Bỏ comment hoặc thêm
-// use PDOException; // <-- Bỏ comment hoặc thêm
 
 class ProductController {
 
@@ -11,24 +7,18 @@ class ProductController {
 
     public function __construct(?PDO $pdo) {
         if ($pdo === null) {
-            // Trả lỗi trực tiếp vì $this chưa dùng được
             http_response_code(500);
             header("Content-Type: application/json; charset=UTF-8");
             echo json_encode(['error' => 'Lỗi nghiêm trọng: Không có kết nối cơ sở dữ liệu trong ProductController.']);
             exit();
         }
         $this->db = $pdo;
-        // Xác định đường dẫn tuyệt đối tới thư mục upload ảnh sản phẩm
         $this->productImageUploadDir = __DIR__ . '/../../public/uploads/products/';
-        // Đảm bảo thư mục tồn tại
         if (!is_dir($this->productImageUploadDir)) {
-            mkdir($this->productImageUploadDir, 0775, true); // Tạo thư mục nếu chưa có (cần quyền ghi)
+            mkdir($this->productImageUploadDir, 0775, true);
         }
     }
 
-    /**
-     * Hàm tiện ích gửi JSON response chuẩn hóa
-     */
     private function sendResponse(int $statusCode, array $data): void {
         http_response_code($statusCode);
         if (!headers_sent()) {
@@ -43,18 +33,7 @@ class ProductController {
             $sql = "SELECT productId, name, price, image, category, number as stock_quantity, color FROM product ORDER BY created_at DESC";
             $stmt = $this->db->query($sql);
             $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
-             // Thêm URL đầy đủ cho ảnh nếu cần
-            /*
-             $baseImageUrl = rtrim(getenv('API_BASE_URL') ?: 'http://localhost/backend', '/') . '/uploads/products/';
-             foreach($products as &$product) {
-                if (!empty($product['image'])) {
-                    $product['imageUrl'] = $baseImageUrl . $product['image'];
-                } else {
-                     $product['imageUrl'] = null; // Hoặc ảnh mặc định
-                }
-             }
-             unset($product); // Hủy tham chiếu
-            */
+
             $this->sendResponse(200, $products);
         } catch (PDOException $e) {
             error_log("API Error (ProductController::getAll): " . $e->getMessage());
@@ -74,15 +53,6 @@ class ProductController {
             $product = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if ($product) {
-                 // Thêm URL đầy đủ cho ảnh nếu cần
-                 /*
-                 if (!empty($product['image'])) {
-                      $baseImageUrl = rtrim(getenv('API_BASE_URL') ?: 'http://localhost/backend', '/') . '/uploads/products/';
-                      $product['imageUrl'] = $baseImageUrl . $product['image'];
-                 } else {
-                      $product['imageUrl'] = null;
-                 }
-                 */
                 $this->sendResponse($statusCode, $product);
             } else {
                 $this->sendResponse(404, ['error' => "Không tìm thấy sản phẩm với ID = {$id}."]);
@@ -93,34 +63,30 @@ class ProductController {
         }
     }
 
-    // *** HÀM CREATE ĐÃ SỬA ĐỂ NHẬN FORM-DATA VÀ FILE ***
+    // *** HÀM CREATE ĐỂ NHẬN FORM-DATA VÀ FILE ***
     public function create(): void {
         // 1. Đọc dữ liệu text từ $_POST
         $name = trim($_POST['name'] ?? '');
-        $stock_quantity = filter_var($_POST['stock_quantity'] ?? null, FILTER_VALIDATE_INT); // Dùng filter_var
-        $price = filter_var($_POST['price'] ?? null, FILTER_VALIDATE_FLOAT); // Dùng filter_var
+        $stock_quantity = filter_var($_POST['stock_quantity'] ?? null, FILTER_VALIDATE_INT); 
+        $price = filter_var($_POST['price'] ?? null, FILTER_VALIDATE_FLOAT); 
         $category = trim($_POST['category'] ?? '');
         $color = trim($_POST['color'] ?? '');
         $description = trim($_POST['description'] ?? '');
         $size = trim($_POST['size'] ?? '');
 
-        // 2. Validate dữ liệu bắt buộc (ví dụ)
+        // 2. Validate dữ liệu bắt buộc
         if (empty($name)) { $this->sendResponse(400, ['error' => "Thiếu trường bắt buộc: name"]); return; }
         if ($stock_quantity === false || $stock_quantity < 0) { $this->sendResponse(400, ['error' => "Số lượng tồn kho (stock_quantity) không hợp lệ."]); return; }
         if ($price === false || $price < 0) { $this->sendResponse(400, ['error' => "Giá sản phẩm (price) không hợp lệ."]); return; }
-        // Thêm validation khác nếu cần
 
-        // 3. Xử lý file ảnh sản phẩm (nếu có)
-        $imageFileName = null; // Mặc định là null
+        // 3. Xử lý file ảnh sản phẩm 
+        $imageFileName = null;
         $destinationPath = null;
-
-        // Key 'productImage' phải khớp với key trong FormData gửi từ frontend
         if (isset($_FILES['productImage']) && $_FILES['productImage']['error'] === UPLOAD_ERR_OK) {
             $file = $_FILES['productImage'];
             error_log("DEBUG Product Create: Received productImage: " . print_r($file, true));
 
-            // Validate file
-            $maxSize = 5 * 1024 * 1024; // Tăng lên 5MB cho ảnh sản phẩm
+            $maxSize = 5 * 1024 * 1024; 
             if ($file['size'] > $maxSize) { $this->sendResponse(400, ['error' => 'Ảnh sản phẩm quá lớn (> 5MB).']); return; }
             $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
             $fileType = mime_content_type($file['tmp_name']);
@@ -147,7 +113,6 @@ class ProductController {
              error_log("DEBUG Product Create: No product image uploaded.");
         }
 
-
         // 4. Thực thi INSERT vào CSDL
         // Cột `number` trong DB tương ứng với `$stock_quantity`
         $sql = "INSERT INTO product (name, number, price, image, category, color, description, size, created_at)
@@ -159,8 +124,8 @@ class ProductController {
                 $name,
                 $stock_quantity,
                 $price,
-                $imageFileName, // Tên file ảnh (hoặc null nếu không upload)
-                $category ?: null, // Lưu null nếu rỗng
+                $imageFileName, 
+                $category ?: null,
                 $color ?: null,
                 $description ?: null,
                 $size ?: null
@@ -169,31 +134,29 @@ class ProductController {
             if ($success) {
                 $newProductId = $this->db->lastInsertId();
                 // Gọi lại getById để trả về thông tin sản phẩm vừa tạo
-                $this->getById((int)$newProductId, 201); // Mã 201 Created
+                $this->getById((int)$newProductId, 201); 
             } else {
-                // Lỗi execute nhưng không ném exception? Xóa file đã upload nếu có
                 if ($destinationPath && file_exists($destinationPath)) { @unlink($destinationPath); }
                 $this->sendResponse(500, ['error' => 'Không thể tạo sản phẩm do lỗi không xác định.']);
             }
 
         } catch (PDOException $e) {
-            // Lỗi CSDL, xóa file đã upload nếu có
             if ($destinationPath && file_exists($destinationPath)) { @unlink($destinationPath); }
             error_log("API Error (ProductController::create): " . $e->getMessage());
             $this->sendResponse(500, ['error' => 'Lỗi máy chủ nội bộ khi tạo sản phẩm.']);
         }
     }
 
-    // *** HÀM UPDATE ĐÃ SỬA ĐỂ NHẬN FORM-DATA VÀ FILE ***
+    // *** HÀM UPDATE ĐỂ NHẬN FORM-DATA VÀ FILE ***
     public function update(int $id): void {
         if ($id <= 0) { $this->sendResponse(400, ['error' => 'ID sản phẩm không hợp lệ.']); return; }
 
         // 1. Đọc dữ liệu text từ $_POST
-        // Dùng filter_input để an toàn hơn một chút và xử lý input không tồn tại
+
         $inputName = filter_input(INPUT_POST, 'name', FILTER_DEFAULT) ?? null;
-        $inputStock = filter_input(INPUT_POST, 'stock_quantity', FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]); // Lọc số nguyên >= 0
-        $inputPrice = filter_input(INPUT_POST, 'price', FILTER_VALIDATE_FLOAT, ['options' => ['min_range' => 0]]); // Lọc số thực >= 0
-        $inputCategory = isset($_POST['category']) ? trim($_POST['category']) : null; // Chỉ lấy nếu có gửi
+        $inputStock = filter_input(INPUT_POST, 'stock_quantity', FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
+        $inputPrice = filter_input(INPUT_POST, 'price', FILTER_VALIDATE_FLOAT, ['options' => ['min_range' => 0]]);
+        $inputCategory = isset($_POST['category']) ? trim($_POST['category']) : null;
         $inputColor = isset($_POST['color']) ? trim($_POST['color']) : null;
         $inputDescription = isset($_POST['description']) ? trim($_POST['description']) : null;
         $inputSize = isset($_POST['size']) ? trim($_POST['size']) : null;
@@ -209,11 +172,10 @@ class ProductController {
         // Validate và thêm các trường text (chỉ thêm nếu key tồn tại trong $_POST)
         if ($inputName !== null) {
              if(!empty(trim($inputName))) { $fieldsToUpdate[] = "name = ?"; $params[] = trim($inputName); }
-             // else { $this->sendResponse(400, ['error' => 'Tên sản phẩm không được trống.']); return; } // Bỏ lỗi nếu cho phép tên trống
         }
-        if ($inputStock !== null && $inputStock !== false) { // filter_var trả về false nếu không hợp lệ
+        if ($inputStock !== null && $inputStock !== false) { 
              $fieldsToUpdate[] = "number = ?"; $params[] = $inputStock;
-        } elseif (isset($_POST['stock_quantity']) && $inputStock === false) { // Gửi lên nhưng không hợp lệ
+        } elseif (isset($_POST['stock_quantity']) && $inputStock === false) {
             $this->sendResponse(400, ['error' => 'Số lượng tồn kho không hợp lệ.']); return;
         }
         if ($inputPrice !== null && $inputPrice !== false) {
@@ -230,7 +192,7 @@ class ProductController {
         if (isset($_FILES['productImage']) && $_FILES['productImage']['error'] === UPLOAD_ERR_OK) {
              $file = $_FILES['productImage'];
              error_log("DEBUG Product Update {$id}: Received productImage: " . print_r($file, true));
-             // Validate file (size, type)
+
              $maxSize = 5 * 1024 * 1024; // 5MB
              if ($file['size'] > $maxSize) { $this->sendResponse(400, ['error' => 'Ảnh sản phẩm quá lớn (> 5MB).']); return; }
              $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
@@ -314,7 +276,6 @@ class ProductController {
 
     // DEL - /products/{id} (Giữ nguyên)
     public function delete(int $id): void {
-        // ... (code hàm delete giữ nguyên như cũ) ...
          if ($id <= 0) { $this->sendResponse(400, ['error' => 'ID sản phẩm không hợp lệ.']); return; }
          $sql = "DELETE FROM product WHERE productId = ?";
          try {
@@ -352,5 +313,5 @@ class ProductController {
          }
     }
 
-} // Kết thúc class ProductController
+}
 ?>

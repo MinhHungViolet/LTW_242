@@ -1,28 +1,23 @@
-import React, { useState, useEffect } from "react"; // Giữ lại useEffect vì dùng cho cả cart và profile 
+import React, { useState, useEffect } from "react";
  import { motion } from 'framer-motion';
  import { useNavigate } from 'react-router-dom';
- import { useAuth } from "../contexts/AuthContext"; // Vẫn cần để lấy token và trạng thái loading auth 
- import axios from 'axios';                       // Cần axios cho cả 2 API call 
- import Cart from '../Product/Cart';              // <<< Đảm bảo import component Cart
+ import { useAuth } from "../contexts/AuthContext";
+ import axios from 'axios'; 
+ import Cart from '../Product/Cart'; 
  import cartIcon from '../Images/cart.png';
- import defaultAvatar from '../Images/default-avt.jpg'; // <<< Sửa lại tên file ảnh mặc định nếu cần
+ import defaultAvatar from '../Images/default-avt.jpg'; 
  import { X, Menu } from 'lucide-react';
 
- // --- Định nghĩa URL --- 
+
  const API_BASE_URL = "http://localhost/backend/public";
- // Đường dẫn web CÔNG KHAI tới thư mục chứa ảnh upload 
  const UPLOADS_URL = "http://localhost/backend/public/uploads";
 
  const Navbar = () => {
      const navigate = useNavigate();
-     // Lấy token và trạng thái loading auth từ context
-     const { token, isLoading: authLoading, user } = useAuth(); // Lấy thêm user để biết đã đăng nhập chưa cho avatar click 
+     const { token, isLoading: authLoading, user } = useAuth();
 
-     // State cho menu và cart modal (giữ nguyên) 
      const [isOpenNav, setIsOpenNav] = useState(false);
-     const [isOpenCart, setIsOpenCart] = useState(false); // State này dùng để mở/đóng modal Cart
-
-     // --- GIỮ NGUYÊN: State và useEffect fetch cart count như bạn cung cấp --- 
+     const [isOpenCart, setIsOpenCart] = useState(false);
      const [cartCount, setCartCount] = useState(0);
      const [isCartLoading, setIsCartLoading] = useState(false);
 
@@ -50,9 +45,7 @@ import React, { useState, useEffect } from "react"; // Giữ lại useEffect vì
          };
          fetchCartCount();
      }, [authLoading, token]);
-     // --- KẾT THÚC GIỮ NGUYÊN CART COUNT --- 
 
-     // --- State và useEffect fetch profile để lấy avatar (Giữ nguyên) --- 
      const [avatarFilename, setAvatarFilename] = useState(null);
      const [isFetchingProfile, setIsFetchingProfile] = useState(false);
 
@@ -78,14 +71,11 @@ import React, { useState, useEffect } from "react"; // Giữ lại useEffect vì
          };
          fetchProfileForAvatar();
      }, [authLoading, token]);
-    // --- Kết thúc fetch profile ---
 
-     // Hàm mở/đóng Cart modal (giữ nguyên) 
      const openCart = () => {
          setIsOpenCart(prev => !prev);
      };
 
-     // Hàm lấy nguồn ảnh avatar động (giữ nguyên) 
      const getAvatarSrc = () => {
          if (avatarFilename) {
              return `${UPLOADS_URL}/avatars/${avatarFilename}?t=${Date.now()}`;
@@ -93,11 +83,9 @@ import React, { useState, useEffect } from "react"; // Giữ lại useEffect vì
          return defaultAvatar;
      };
 
-     // --- PHẦN JSX --- 
      return (
-         <div className='sticky top-0 z-50'> {/* Sticky Navbar */}
+         <div className='sticky top-0 z-50'>
              <div className="bg-white flex flex-row items-center justify-between p-2 shadow-md ">
-                 {/* Phần Menu Desktop (Giữ nguyên) */}
                  <div className="hidden lg:flex flex-row justify-between w-auto lg:w-[36rem] ml-5 text-[#3f3f3e] text-lg font-semibold ">
                      <a href="/introduction" className='hover:text-[#495DE5] transition-all duration-300 p-2'>Trang chủ</a>
                      <a href="/product" className='hover:text-[#495DE5] transition-all duration-300 p-2'>Sản phẩm</a>
@@ -107,7 +95,6 @@ import React, { useState, useEffect } from "react"; // Giữ lại useEffect vì
                      <a href="/introduction" className='hover:text-[#495DE5] transition-all duration-300 p-2'>Giới thiệu</a>
                  </div>
 
-                 {/* Nút Hamburger (Giữ nguyên) */}
                  <button
                      className="lg:hidden text-[#3f3f3e] mr-5 z-[60]"
                      onClick={() => setIsOpenNav(!isOpenNav)}
@@ -117,9 +104,8 @@ import React, { useState, useEffect } from "react"; // Giữ lại useEffect vì
 
                  {/* Icons Cart và User */}
                  <div className='flex flex-row mr-4 md:mr-6 lg:mr-8 items-center justify-end space-x-4 sm:space-x-6'>
-                     {/* Icon Cart với Badge */}
-                     {/* --- SỬA ĐỔI: Đã thêm onClick={openCart} --- */}
-                     <div className='relative cursor-pointer p-2' onClick={openCart}> {/* <<< Đảm bảo có onClick ở đây */}
+
+                     <div className='relative cursor-pointer p-2' onClick={openCart}>
                          <img src={cartIcon} alt="Giỏ hàng" className='w-7 h-7' />
                          {!isCartLoading && cartCount > 0 && (
                              <span className='absolute top-0 right-0 bg-red-600 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full transform translate-x-1/3 -translate-y-1/3'>
@@ -128,39 +114,26 @@ import React, { useState, useEffect } from "react"; // Giữ lại useEffect vì
                          )}
                           {isCartLoading && <span className='absolute top-0 right-0 w-5 h-5 flex items-center justify-center'><div className="animate-spin rounded-full h-3 w-3 border-b-2 border-gray-500"></div></span>}
                      </div>
-
-                     {/* Icon User/Avatar */}
                       {(authLoading || isFetchingProfile) && <div className="w-8 h-8 rounded-full bg-gray-200 animate-pulse"></div>}
-                      {/* --- SỬA ĐỔI: Đảm bảo logic onClick điều hướng đúng --- */}
                       {!authLoading && !isFetchingProfile && (
                         <img
                             src={getAvatarSrc()}
                             alt="Tài khoản"
                             className='w-8 h-8 rounded-full cursor-pointer object-cover border border-gray-200 hover:opacity-80 transition-opacity'
                             onClick={() => {
-                                if (user) { // Kiểm tra xem user có tồn tại không (lấy từ context)
-                                    navigate("/user"); // <<< Điều hướng đến trang user nếu đã đăng nhập
+                                if (user) {
+                                    navigate("/user");
                                 } else {
-                                     // Nếu chưa đăng nhập, bạn có thể không làm gì cả,
-                                     // hoặc mở modal đăng nhập (nếu có hàm đó),
-                                     // hoặc điều hướng đến trang đăng nhập riêng (nếu có)
                                      console.log("Navbar: User not logged in. Cannot navigate to /user.");
-                                     // Ví dụ: navigate('/login'); // Nếu bạn có trang login riêng
                                 }
                             }}
                             title={user ? (user.name || user.email) : "Tài khoản"}
                          />
                       )}
-                     {/* Phần đăng nhập/đăng xuất đã được xóa theo yêu cầu trước */}
                  </div>
-
-                 {/* Cart Modal */}
-                  {/* --- SỬA ĐỔI: Bỏ comment dòng này để Cart hiển thị --- */}
-                 {isOpenCart && (<Cart onClose={openCart} />)} {/* <<< Đảm bảo dòng này không bị comment */}
+                 {isOpenCart && (<Cart onClose={openCart} />)}
 
              </div>
-
-             {/* Navigation Mobile Menu (Giữ nguyên) */}
               <motion.ul
                   initial={{ x: "-100%", opacity: 0 }}
                   animate={isOpenNav ? { x: 0, opacity: 1 } : { x: "-100%", opacity: 0 }}
@@ -174,7 +147,6 @@ import React, { useState, useEffect } from "react"; // Giữ lại useEffect vì
                    <li className='w-full border-b border-gray-100'><a href="/question" className='block p-3 rounded hover:bg-gray-100 w-full text-left text-base'>Hỏi đáp</a></li>
                    <li className='w-full border-b border-gray-100'><a href="/introduction" className='block p-3 rounded hover:bg-gray-100 w-full text-left text-base'>Liên hệ</a></li>
                    <li className='w-full'><a href="/introduction" className='block p-3 rounded hover:bg-gray-100 w-full text-left text-base'>Giới thiệu</a></li>
-                   {/* Phần đăng nhập/đăng xuất mobile đã được xóa */}
               </motion.ul>
          </div>
      )

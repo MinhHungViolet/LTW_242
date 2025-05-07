@@ -2,8 +2,7 @@ const API_URL = 'http://localhost/backend/public/introduction';
 
 async function fetchIntroduction() {
     try {
-        // const token = localStorage.getItem('token');
-        const token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJ5b3VyX2FwaV9kb21haW4uY29tIiwiYXVkIjoieW91cl9hcGlfZG9tYWluLmNvbSIsImlhdCI6MTc0NjI3MjE4OCwiZXhwIjoxNzQ2ODc2OTg4LCJ1c2VySWQiOjExLCJlbWFpbCI6InF1b2NkYXRhZG1pbkBlbWFpbC5jb20iLCJyb2xlIjoiYWRtaW4ifQ.6l0-lxKa-GXQItFzYp9PEs989w6R9AeIyF-u3s9O2cI';
+        const token = localStorage.getItem('token');
         const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
         
         const response = await fetch(API_URL, {
@@ -40,9 +39,7 @@ async function saveIntroduction() {
     }
 
     try {
-        // const token = localStorage.getItem('token');
-        const token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJ5b3VyX2FwaV9kb21haW4uY29tIiwiYXVkIjoieW91cl9hcGlfZG9tYWluLmNvbSIsImlhdCI6MTc0NjI3MjE4OCwiZXhwIjoxNzQ2ODc2OTg4LCJ1c2VySWQiOjExLCJlbWFpbCI6InF1b2NkYXRhZG1pbkBlbWFpbC5jb20iLCJyb2xlIjoiYWRtaW4ifQ.6l0-lxKa-GXQItFzYp9PEs989w6R9AeIyF-u3s9O2cI';
-
+        const token = localStorage.getItem('token');
         if (!token) {
             alert('Vui lòng đăng nhập để chỉnh sửa nội dung.');
             return;

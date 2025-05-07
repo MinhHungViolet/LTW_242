@@ -1,17 +1,14 @@
 <?php
-// src/Controllers/AuthController.php
 
-// use PDO;
-// use PDOException;
-use Firebase\JWT\JWT; // Import lớp JWT
-use Firebase\JWT\Key;  // Import lớp Key (dùng cho phiên bản mới của php-jwt)
+use Firebase\JWT\JWT; 
+use Firebase\JWT\Key;
 
 class AuthController {
 
     private $db;
-    private $jwtSecretKey; // Sẽ lưu trữ khóa bí mật JWT
-    private $issuer = 'your_api_domain.com'; // Thay bằng domain của bạn hoặc tên ứng dụng
-    private $audience = 'your_api_domain.com'; // Tương tự
+    private $jwtSecretKey;
+    private $issuer = 'your_api_domain.com';
+    private $audience = 'your_api_domain.com';
 
     public function __construct(?PDO $pdo) {
         if ($pdo === null) {
@@ -19,33 +16,24 @@ class AuthController {
             exit();
         }
         $this->db = $pdo;
-
-        // !!! QUAN TRỌNG: Lấy khóa bí mật JWT từ nơi an toàn !!!
-        // Tạm thời để trong code, nhưng cách tốt nhất là dùng biến môi trường (.env)
-        // Hoặc định nghĩa trong file config riêng không đưa lên Git
-        $this->jwtSecretKey = 'YOUR_REALLY_STRONG_AND_SECRET_KEY_HERE_12345!'; // *** THAY BẰNG KHÓA BÍ MẬT CỦA BẠN ***
-        // Đảm bảo khóa này đủ dài và phức tạp.
+        $this->jwtSecretKey = 'YOUR_REALLY_STRONG_AND_SECRET_KEY_HERE_12345!';
     }
-
-    // Hàm tiện ích gửi response (giống ProductController)
     private function sendResponse(int $statusCode, array $data): void {
         http_response_code($statusCode);
         header("Content-Type: application/json; charset=UTF-8");
         echo json_encode($data);
     }
 
-    // Hàm tạo JWT (sẽ thêm ở Bước 3)
     private function createJwt(int $userId, string $email, string $role, string $name): string {
         $issuedAt = time();
-        $expirationTime = $issuedAt + (60 * 60 * 24 * 7); // Token hết hạn sau 7 ngày (ví dụ)
-        // Bạn có thể đặt thời gian hết hạn ngắn hơn (vd: 1 giờ) và dùng Refresh Token nếu cần bảo mật cao hơn
+        $expirationTime = $issuedAt + (60 * 60 * 24 * 7); // Token hết hạn sau 7 ngày
     
         $payload = [
-            'iss' => $this->issuer,       // Issuer: Ai cấp token
-            'aud' => $this->audience,    // Audience: Ai sử dụng token
-            'iat' => $issuedAt,          // Issued At: Thời điểm cấp
-            'exp' => $expirationTime,    // Expiration Time: Thời điểm hết hạn
-            'userId' => $userId,         // Dữ liệu người dùng
+            'iss' => $this->issuer,       
+            'aud' => $this->audience,    
+            'iat' => $issuedAt,         
+            'exp' => $expirationTime,    
+            'userId' => $userId,        
             'email' => $email,
             'role' => $role,
             'name' => $name
@@ -57,7 +45,6 @@ class AuthController {
         return $jwt;
     }
 
-    // Hàm đăng ký (sẽ thêm ở Bước 2)
     public function register(): void {
         $inputData = json_decode(file_get_contents('php://input'), true);
     
@@ -66,12 +53,11 @@ class AuthController {
             return;
         }
     
-        // --- Validation cơ bản ---
         $name = $inputData['name'] ?? null;
         $email = $inputData['email'] ?? null;
         $password = $inputData['password'] ?? null;
-        $phone = $inputData['phone'] ?? null; // Tùy chọn
-        $avatar = $inputData['avatar'] ?? null; // Tùy chọn
+        $phone = $inputData['phone'] ?? null;
+        $avatar = $inputData['avatar'] ?? null;
     
         if (empty($name) || empty($email) || empty($password)) {
             $this->sendResponse(400, ['error' => 'Thiếu tên, email hoặc mật khẩu.']);
@@ -83,27 +69,24 @@ class AuthController {
              return;
         }
     
-        // Kiểm tra độ dài mật khẩu (ví dụ tối thiểu 8 ký tự)
         if (strlen($password) < 8) {
              $this->sendResponse(400, ['error' => 'Mật khẩu phải có ít nhất 8 ký tự.']);
              return;
         }
-        // Thêm các validation khác nếu cần...
-    
         // --- Kiểm tra Email tồn tại ---
         try {
             $sqlCheck = "SELECT userId FROM user WHERE email = ?";
             $stmtCheck = $this->db->prepare($sqlCheck);
             $stmtCheck->execute([$email]);
             if ($stmtCheck->fetch()) {
-                $this->sendResponse(409, ['error' => 'Địa chỉ email này đã được đăng ký.']); // 409 Conflict
+                $this->sendResponse(409, ['error' => 'Địa chỉ email này đã được đăng ký.']);
                 return;
             }
     
             // --- Mã hóa mật khẩu ---
-            $hashedPassword = password_hash($password, PASSWORD_DEFAULT); // Hoặc dùng PASSWORD_BCRYPT
+            $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
              if ($hashedPassword === false) {
-                  throw new Exception("Không thể mã hóa mật khẩu."); // Ném lỗi nếu hash thất bại
+                  throw new Exception("Không thể mã hóa mật khẩu.");
              }
     
             // --- Lưu người dùng vào DB ---
@@ -123,7 +106,7 @@ class AuthController {
                 // Trả về thông báo thành công hoặc thông tin user (không có pass)
                 $this->sendResponse(201, [
                     'message' => 'Đăng ký thành công!',
-                    'userId' => (int)$newUserId, // Trả về ID user mới
+                    'userId' => (int)$newUserId,
                     'name' => $name,
                     'email' => $email,
                     'role' => 'customer'
@@ -135,13 +118,12 @@ class AuthController {
         } catch (PDOException $e) {
             error_log("API Error (AuthController::register - DB): " . $e->getMessage());
             $this->sendResponse(500, ['error' => 'Lỗi máy chủ nội bộ khi đăng ký (DB).']);
-        } catch (Exception $e) { // Bắt lỗi Exception chung (ví dụ: lỗi hash password)
+        } catch (Exception $e) {
              error_log("API Error (AuthController::register - General): " . $e->getMessage());
              $this->sendResponse(500, ['error' => 'Lỗi máy chủ nội bộ khi đăng ký (General).']);
         }
     }
 
-    // Hàm đăng nhập (sẽ thêm ở Bước 4)
     public function login(): void {
         $inputData = json_decode(file_get_contents('php://input'), true);
     
@@ -149,8 +131,7 @@ class AuthController {
             $this->sendResponse(400, ['error' => 'Dữ liệu JSON không hợp lệ.']);
             return;
         }
-    
-        // --- Validation cơ bản ---
+
         $email = $inputData['email'] ?? null;
         $password = $inputData['password'] ?? null;
     
@@ -164,9 +145,7 @@ class AuthController {
              return;
         }
     
-        // --- Tìm user và xác thực ---
         try {
-            // Lấy cả password hash và role để tạo token
             $sql = "SELECT userId, email, password, role, name FROM user WHERE email = ?";
             $stmt = $this->db->prepare($sql);
             $stmt->execute([$email]);
@@ -174,13 +153,12 @@ class AuthController {
     
             // 1. Kiểm tra user tồn tại
             if (!$user) {
-                $this->sendResponse(401, ['error' => 'Email hoặc mật khẩu không đúng.']); // 401 Unauthorized
+                $this->sendResponse(401, ['error' => 'Email hoặc mật khẩu không đúng.']);
                 return;
             }
     
             // 2. Kiểm tra mật khẩu
             if (password_verify($password, $user['password'])) {
-                // Mật khẩu đúng -> Tạo JWT
                 $token = $this->createJwt($user['userId'], $user['email'], $user['role'], name: $user['name']);
     
                 // Trả về token và thông tin user cơ bản
@@ -196,7 +174,7 @@ class AuthController {
                  ]);
             } else {
                 // Mật khẩu sai
-                $this->sendResponse(401, ['error' => 'Email hoặc mật khẩu không đúng.']); // 401 Unauthorized
+                $this->sendResponse(401, ['error' => 'Email hoặc mật khẩu không đúng.']);
             }
     
         } catch (PDOException $e) {

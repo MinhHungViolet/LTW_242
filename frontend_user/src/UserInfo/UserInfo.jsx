@@ -8,10 +8,7 @@ const API_BASE_URL = "http://localhost/backend/public";
 const IMAGE_BASE_URL = "http://localhost/backend/public";
 
 const UserInfo = () => {
-    // Lấy thông tin user và token từ context
     const { user: authUser, token, isLoading: authLoading } = useAuth();
-
-    // State local cho dữ liệu profile (để chỉnh sửa) và orders
     const [profileData, setProfileData] = useState({
         userId: null, fullName: '', email: '', phone: '', avatar: null,
     });
@@ -23,13 +20,11 @@ const UserInfo = () => {
     const [orders, setOrders] = useState([]);
     const [detailError, setDetailError] = useState('');
 
-    const [selectedOrderId, setSelectedOrderId] = useState(null); // ID đơn hàng đang xem
-    const [selectedOrderDetails, setSelectedOrderDetails] = useState(null); // Dữ liệu chi tiết
-    const [isLoadingDetails, setIsLoadingDetails] = useState(false); // Loading khi fetch chi tiết
+    const [selectedOrderId, setSelectedOrderId] = useState(null);
+    const [selectedOrderDetails, setSelectedOrderDetails] = useState(null);
+    const [isLoadingDetails, setIsLoadingDetails] = useState(false);
 
-    // Hàm fetch dữ liệu profile và orders
     const fetchData = useCallback(async () => {
-        // Chỉ fetch khi có token và authUser (đã đăng nhập)
         if (!token || !authUser?.id) {
             setError("Không thể xác thực người dùng.");
             setIsFetching(false);
@@ -42,8 +37,6 @@ const UserInfo = () => {
 
         try {
             const headers = { Authorization: `Bearer ${token}` };
-
-            // Gọi đồng thời 2 API
             const [profileResponse, ordersResponse] = await Promise.all([
                 axios.get(`${API_BASE_URL}/user/profile`, { headers }),
                 axios.get(`${API_BASE_URL}/orders`, { headers })
@@ -51,26 +44,21 @@ const UserInfo = () => {
 
             console.log("Profile Response:", profileResponse.data);
             console.log("Orders Response:", ordersResponse.data);
-
-            // Cập nhật state profile
             if (profileResponse.data) {
                 setProfileData({
                     userId: profileResponse.data.userId,
-                    fullName: profileResponse.data.name || '', // Map 'name' sang 'fullName'
+                    fullName: profileResponse.data.name || '',
                     email: profileResponse.data.email || '',
                     phone: profileResponse.data.phone || '',
-                    avatar: profileResponse.data.avatar || null, // Lưu tên file
-                    // Không cần set orders ở đây nữa
+                    avatar: profileResponse.data.avatar || null,
                 });
-                // Set avatar preview ban đầu từ tên file (nếu có)
                 if (profileResponse.data.avatar) {
                     setAvatarPreview(`${IMAGE_BASE_URL}/uploads/avatars/${profileResponse.data.avatar}`);
                 } else {
-                    setAvatarPreview('https://via.placeholder.com/100'); // Ảnh mặc định
+                    setAvatarPreview('https://via.placeholder.com/100');
                 }
             }
 
-            // Cập nhật state orders
             if (ordersResponse.data) {
                 setOrders(ordersResponse.data);
             }
@@ -83,40 +71,35 @@ const UserInfo = () => {
         } finally {
             setIsFetching(false);
         }
-    }, [token, authUser?.id]); // Chỉ phụ thuộc token và userId
+    }, [token, authUser?.id]);
 
-    // Gọi fetchData khi component mount và có token/user
     useEffect(() => {
-        if (!authLoading) { // Chỉ chạy khi context đã hết loading
+        if (!authLoading) {
             fetchData();
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [authLoading, fetchData]); // Chỉ chạy lại nếu authLoading thay đổi hoặc fetchData được tạo lại (ít khi)
+    }, [authLoading, fetchData]);
 
     const fetchOrderDetail = async (orderId) => {
-        // Nếu click lại đơn hàng đang mở thì đóng nó lại
         if (selectedOrderId === orderId) {
             setSelectedOrderId(null);
             setSelectedOrderDetails(null);
             return;
         }
 
-        setSelectedOrderId(orderId);      // Đánh dấu đơn hàng đang chọn
-        setSelectedOrderDetails(null);    // Xóa chi tiết cũ
-        setIsLoadingDetails(true);        // Bật loading chi tiết
-        setError('');                     // Xóa lỗi cũ
+        setSelectedOrderId(orderId);
+        setSelectedOrderDetails(null);
+        setIsLoadingDetails(true);
+        setError('');
 
         try {
             if (!token) throw new Error("Chưa đăng nhập");
             const headers = { Authorization: `Bearer ${token}` };
             console.log(`Workspaceing details for order: ${orderId}`);
 
-            // Gọi API GET /orders/{orderId}
             const response = await axios.get(`${API_BASE_URL}/orders/${orderId}`, { headers });
 
             if (response.status === 200 && response.data) {
                 console.log(`Order details received:`, response.data);
-                // Lưu toàn bộ response (bao gồm cả mảng 'items') vào state
                 setSelectedOrderDetails(response.data);
             } else {
                 throw new Error("Không thể lấy chi tiết đơn hàng.");
@@ -124,12 +107,12 @@ const UserInfo = () => {
         } catch (err) {
             console.error(`Error fetching order details ${orderId}:`, err.response || err);
             const errorMsg = err.response?.data?.error || "Lỗi khi tải chi tiết đơn hàng.";
-            setError(errorMsg); // Hiển thị lỗi chung
+            setError(errorMsg);
             toast.error(errorMsg);
-            setSelectedOrderId(null); // Bỏ chọn nếu lỗi
+            setSelectedOrderId(null);
             setSelectedOrderDetails(null);
         } finally {
-            setIsLoadingDetails(false); // Tắt loading chi tiết
+            setIsLoadingDetails(false);
         }
     };
 
@@ -146,21 +129,20 @@ const UserInfo = () => {
             // Tạo URL tạm thời để preview ngay lập tức
             const reader = new FileReader();
             reader.onloadend = () => {
-                setAvatarPreview(reader.result); // Cập nhật preview
+                setAvatarPreview(reader.result);
             };
             reader.readAsDataURL(file);
 
             // Lưu File object để chuẩn bị upload
-            setAvatarFile(file); // <-- LƯU FILE VÀO STATE RIÊNG
+            setAvatarFile(file);
         } else {
             toast.error("Vui lòng chọn file ảnh hợp lệ.");
             setAvatarFile(null);
         }
     };
 
-    // Hàm xử lý khi nhấn nút Lưu thay đổi
     const handleSave = async () => {
-        if (isSaving || !token) return; // Không lưu nếu đang lưu hoặc không có token
+        if (isSaving || !token) return;
         setIsSaving(true);
         setError('');
 
@@ -168,13 +150,11 @@ const UserInfo = () => {
         const formData = new FormData();
 
         // 2. Thêm các trường dữ liệu text vào FormData
-        // Key phải khớp với key đọc trong $_POST ở backend ('name', 'phone')
-        formData.append('name', profileData.fullName); // Gửi giá trị từ state profileData
+        formData.append('name', profileData.fullName);
         formData.append('phone', profileData.phone);
 
-        // 3. Thêm file avatar vào FormData NẾU có file mới được chọn
+        // 3. Thêm file avatar vào FormData nếu có file mới được chọn
         if (avatarFile) {
-            // Key 'avatarFile' phải khớp với key kiểm tra trong $_FILES ở backend
             formData.append('avatarFile', avatarFile);
             console.log("Appending avatar file to FormData:", avatarFile);
         }
@@ -182,13 +162,11 @@ const UserInfo = () => {
         try {
             const headers = {
                 Authorization: `Bearer ${token}`,
-                // 'Content-Type': 'multipart/form-data' // Axios tự xử lý khi body là FormData
             };
 
             console.log("Sending update request to /user/profile");
 
             // 4. Gọi API POST /user/profile với FormData
-            // (Đảm bảo backend route cho profile update là POST như bạn đã chỉ định)
             const response = await axios.post(`${API_BASE_URL}/user/profile`, formData, {
                 headers: headers
             });
@@ -198,25 +176,20 @@ const UserInfo = () => {
             // 5. Xử lý kết quả thành công (Backend trả về thông tin user mới nhất)
             if (response.status === 200 && response.data) {
                 toast.success('Thông tin cá nhân đã được cập nhật!');
-
-                // Cập nhật lại state local với dữ liệu mới nhất từ server
                 setProfileData(prev => ({
                     ...prev,
                     fullName: response.data.name || prev.fullName,
-                    phone: response.data.phone || '', // Lấy phone từ response
-                    avatar: response.data.avatar || prev.avatar, // Cập nhật tên file avatar mới
+                    phone: response.data.phone || '',
+                    avatar: response.data.avatar || prev.avatar,
                 }));
 
-                // Cập nhật lại preview nếu avatar đã thay đổi
                 if (response.data.avatar) {
-                    // Thêm timestamp để refresh ảnh nếu tên file giống nhau (ít xảy ra với logic tạo tên file)
                     setAvatarPreview(`${IMAGE_BASE_URL}/uploads/avatars/${response.data.avatar}?t=${Date.now()}`);
-                } else if (avatarFile) { // Nếu user upload file nhưng response không trả về avatar? (lỗi)
-                    setAvatarPreview(profileData.avatar ? `${IMAGE_BASE_URL}/uploads/avatars/${profileData.avatar}` : 'https://via.placeholder.com/100'); // Quay lại ảnh cũ hoặc mặc định
+                } else if (avatarFile) {
+                    setAvatarPreview(profileData.avatar ? `${IMAGE_BASE_URL}/uploads/avatars/${profileData.avatar}` : 'https://via.placeholder.com/100');
                 }
 
-                setAvatarFile(null); // Reset trạng thái file đã chọn
-                // Không cần gọi lại fetchData() vì API đã trả về dữ liệu mới
+                setAvatarFile(null);
             } else {
                 throw new Error("Cập nhật thất bại hoặc dữ liệu trả về không hợp lệ.");
             }
@@ -231,36 +204,28 @@ const UserInfo = () => {
         }
     };
 
-    // --- JSX ---
-    // Hiển thị loading nếu đang fetch auth hoặc fetch data profile/orders
     if (authLoading || isFetching) {
         return <div className="text-center mt-20">Đang tải dữ liệu...</div>;
     }
-
-    // Hiển thị lỗi nếu không có user (chưa đăng nhập hoặc token hết hạn)
     if (!authUser) {
         return <div className="text-center mt-20 text-red-600">Vui lòng đăng nhập để xem thông tin cá nhân.</div>;
     }
 
-    // Hiển thị lỗi fetch data (nếu có)
-    if (error && !profileData.userId) { // Chỉ hiển thị lỗi fetch nếu thực sự không có data
+    if (error && !profileData.userId) {
         return <div className="text-center mt-20 text-red-600">Lỗi tải dữ liệu: {error}</div>;
     }
 
 
     return (
         <motion.div
-            initial={{ opacity: 0 }} // Fade in đơn giản
+            initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6 }}
-            // Sử dụng Flexbox cho layout 2 cột trên màn hình lớn (md trở lên)
-            // Thêm padding tổng thể cho trang (ví dụ: px-4 hoặc px-6)
-            // Thay đổi max-w để rộng hơn, ví dụ max-w-7xl
             className="container mx-auto px-4 md:px-6 lg:px-8 py-10 flex flex-col md:flex-row md:space-x-8 max-w-7xl"
         >
             {/* === CỘT BÊN TRÁI: THÔNG TIN CÁ NHÂN === */}
-            <div className="md:w-1/3 lg:w-2/5 w-full mb-8 md:mb-0"> {/* Chiếm 1/3 hoặc 2/5 chiều rộng trên màn hình lớn */}
-                <div className="bg-white p-6 rounded-lg shadow-lg h-full"> {/* Thêm shadow và bg */}
+            <div className="md:w-1/3 lg:w-2/5 w-full mb-8 md:mb-0">
+                <div className="bg-white p-6 rounded-lg shadow-lg h-full">
                     <h2 className="text-2xl font-bold mb-6 text-gray-800 text-center">Thông Tin Cá Nhân</h2>
 
                     {/* Phần Avatar */}
@@ -270,7 +235,7 @@ const UserInfo = () => {
                             alt="Avatar"
                             className="w-32 h-32 rounded-full object-cover border-4 border-indigo-200 shadow-md"
                             onError={(e) => { e.target.onerror = null; e.target.src = 'https://via.placeholder.com/150' }}
-                         />
+                        />
                         <div>
                             <label htmlFor="avatarInput" className="cursor-pointer bg-indigo-100 text-indigo-700 px-5 py-2 rounded-md hover:bg-indigo-200 text-sm font-semibold transition duration-200 ease-in-out">
                                 Thay đổi ảnh
@@ -291,11 +256,11 @@ const UserInfo = () => {
                         </div>
                         <div>
                             <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">Số điện thoại</label>
-                            <input id="phone" type="tel" name="phone" value={profileData.phone || ''} onChange={handleChange} disabled={isSaving} className="w-full border border-gray-300 p-3 rounded-md focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out" placeholder="Chưa cập nhật"/>
+                            <input id="phone" type="tel" name="phone" value={profileData.phone || ''} onChange={handleChange} disabled={isSaving} className="w-full border border-gray-300 p-3 rounded-md focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out" placeholder="Chưa cập nhật" />
                         </div>
                     </div>
 
-                     {/* Hiển thị lỗi chung (nếu có và không phải lỗi chi tiết) */}
+                    {/* Hiển thị lỗi chung (nếu có và không phải lỗi chi tiết) */}
                     {error && !detailError && (
                         <p className="mt-4 text-center text-red-600 font-semibold text-sm">
                             {error}
@@ -314,8 +279,8 @@ const UserInfo = () => {
             </div>
 
             {/* === CỘT BÊN PHẢI: LỊCH SỬ ĐƠN HÀNG === */}
-            <div className="md:w-2/3 lg:w-3/5 w-full"> {/* Chiếm phần còn lại */}
-                 <div className="bg-white p-6 rounded-lg shadow-lg h-full"> {/* Thêm shadow và bg */}
+            <div className="md:w-2/3 lg:w-3/5 w-full">
+                <div className="bg-white p-6 rounded-lg shadow-lg h-full">
                     <h3 className="text-2xl font-bold mb-6 text-gray-800 text-center">Đơn Hàng Của Bạn</h3>
                     {orders.length > 0 ? (
                         <ul className="space-y-4">
@@ -326,18 +291,18 @@ const UserInfo = () => {
                                         className="p-4 cursor-pointer hover:bg-gray-50 transition-colors duration-150"
                                         onClick={() => fetchOrderDetail(order.orderId)}
                                     >
-                                       <div className="flex justify-between items-center mb-2">
+                                        <div className="flex justify-between items-center mb-2">
                                             <span className="font-semibold text-lg text-indigo-700">Đơn hàng #{order.orderId}</span>
-                                            <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${ order.status === 'delivered' ? 'bg-green-100 text-green-800' : order.status === 'cancelled' ? 'bg-red-100 text-red-800' : order.status === 'shipped' ? 'bg-blue-100 text-blue-800' : order.status === 'processing' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800' }`}>
+                                            <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${order.status === 'delivered' ? 'bg-green-100 text-green-800' : order.status === 'cancelled' ? 'bg-red-100 text-red-800' : order.status === 'shipped' ? 'bg-blue-100 text-blue-800' : order.status === 'processing' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800'}`}>
                                                 {order.status}
                                             </span>
-                                       </div>
-                                       <p className="text-gray-600 text-sm mb-1">Ngày đặt: {new Date(order.date).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric'})}</p>
-                                       <p className="text-gray-800 font-medium mb-1">Tổng tiền: {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.totalPrice)}</p>
-                                       <p className="text-gray-600 text-sm mb-1">Thanh toán: {order.method}</p>
-                                       <p className="text-gray-600 text-sm">Địa chỉ: {order.address}</p>
+                                        </div>
+                                        <p className="text-gray-600 text-sm mb-1">Ngày đặt: {new Date(order.date).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })}</p>
+                                        <p className="text-gray-800 font-medium mb-1">Tổng tiền: {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.totalPrice)}</p>
+                                        <p className="text-gray-600 text-sm mb-1">Thanh toán: {order.method}</p>
+                                        <p className="text-gray-600 text-sm">Địa chỉ: {order.address}</p>
                                         <div className="text-right text-xs text-indigo-500 mt-2 font-medium">
-                                             {selectedOrderId === order.orderId ? 'Ẩn chi tiết ▲' : 'Xem chi tiết ▼'}
+                                            {selectedOrderId === order.orderId ? 'Ẩn chi tiết ▲' : 'Xem chi tiết ▼'}
                                         </div>
                                     </div>
 
@@ -354,21 +319,21 @@ const UserInfo = () => {
                                                 {isLoadingDetails && <p className="text-center text-indigo-600 text-sm py-3 animate-pulse">Đang tải chi tiết...</p>}
                                                 {/* Sử dụng state lỗi chi tiết riêng */}
                                                 {detailError && !isLoadingDetails && (!selectedOrderDetails || selectedOrderDetails.orderId !== order.orderId) && (
-                                                     <p className="text-center text-red-500 text-sm py-3">{detailError}</p>
+                                                    <p className="text-center text-red-500 text-sm py-3">{detailError}</p>
                                                 )}
                                                 {selectedOrderDetails && selectedOrderDetails.orderId === order.orderId && !isLoadingDetails && (
                                                     <>
-                                                         <h4 className="text-md font-semibold mb-3 text-gray-700 pt-1">Chi tiết sản phẩm:</h4>
-                                                         <ul className="space-y-3">
-                                                             {selectedOrderDetails.items && selectedOrderDetails.items.length > 0 ?
+                                                        <h4 className="text-md font-semibold mb-3 text-gray-700 pt-1">Chi tiết sản phẩm:</h4>
+                                                        <ul className="space-y-3">
+                                                            {selectedOrderDetails.items && selectedOrderDetails.items.length > 0 ?
                                                                 selectedOrderDetails.items.map(item => (
-                                                                    <li key={item.productId} className="flex items-center justify-between text-sm border-b border-gray-200 pb-2 last:border-b-0"> {/* Sửa lại border */}
-                                                                        <div className="flex items-center space-x-3 flex-grow mr-3 overflow-hidden"> {/* Thêm overflow */}
-                                                                            <img src={item.productImage ? `${IMAGE_BASE_URL}/uploads/products/${item.productImage}` : 'https://via.placeholder.com/40'} alt={item.productName} className="w-12 h-12 object-cover rounded border border-gray-200 flex-shrink-0" onError={(e) => { e.target.onerror = null; e.target.src = 'https://via.placeholder.com/40' }}/>
-                                                                            <div className='flex flex-col min-w-0'> {/* Thêm min-w-0 */}
-                                                                                 <span className="font-medium text-gray-800 truncate">{item.productName}</span>
-                                                                                 <span className="text-gray-500 text-xs">SL: {item.quantity}</span>
-                                                                             </div>
+                                                                    <li key={item.productId} className="flex items-center justify-between text-sm border-b border-gray-200 pb-2 last:border-b-0">
+                                                                        <div className="flex items-center space-x-3 flex-grow mr-3 overflow-hidden">
+                                                                            <img src={item.productImage ? `${IMAGE_BASE_URL}/uploads/products/${item.productImage}` : 'https://via.placeholder.com/40'} alt={item.productName} className="w-12 h-12 object-cover rounded border border-gray-200 flex-shrink-0" onError={(e) => { e.target.onerror = null; e.target.src = 'https://via.placeholder.com/40' }} />
+                                                                            <div className='flex flex-col min-w-0'>
+                                                                                <span className="font-medium text-gray-800 truncate">{item.productName}</span>
+                                                                                <span className="text-gray-500 text-xs">SL: {item.quantity}</span>
+                                                                            </div>
                                                                         </div>
                                                                         <span className="text-gray-700 font-semibold whitespace-nowrap">
                                                                             {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.price_at_purchase)}
@@ -378,17 +343,17 @@ const UserInfo = () => {
                                                                 :
                                                                 <p className='text-gray-500 text-sm italic'>Không có thông tin sản phẩm cho đơn hàng này.</p>
                                                             }
-                                                         </ul>
+                                                        </ul>
                                                     </>
                                                 )}
                                             </div>
-                                         </motion.div>
+                                        </motion.div>
                                     )}
                                 </li>
                             ))}
                         </ul>
                     ) : (
-                         <p className="text-gray-500 text-center mt-6 py-4">Bạn chưa có đơn hàng nào.</p> // Bỏ border nếu không có đơn hàng
+                        <p className="text-gray-500 text-center mt-6 py-4">Bạn chưa có đơn hàng nào.</p>
                     )}
                 </div>
             </div>
