@@ -11,7 +11,7 @@ const API_BASE_URL = "http://localhost/backend/public";
 const IMAGE_BASE_URL = "http://localhost/backend/public"; // Hoặc http://localhost
 
 // Dữ liệu bộ lọc (giữ nguyên)
-const categories = ["Tất cả", "Áo sơ mi", "Áo thun", "Đồng hồ", "Giày"];
+const categories = ["Tất cả", "Áo", "Quần", "Giày", "Đồng hồ"];
 const colors = ["Tất cả", "Trắng", "Đen", "Xanh", "Đỏ"];
 const priceRanges = [
   { label: "Tất cả", min: 0, max: Infinity },
