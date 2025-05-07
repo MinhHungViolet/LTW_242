@@ -6,10 +6,11 @@ let questions = [];
 let filteredQuestions = [];
 let users = [];
 let selectedQuestionId = null;
+const token = localStorage.getItem('adminToken');
 
 async function fetchUsers() {
     try {
-        const token = localStorage.getItem('adminToken');
+        // const token = localStorage.getItem('adminToken');
         const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
         
         const response = await fetch(USER_API_URL, {
@@ -28,7 +29,7 @@ async function fetchUsers() {
 
 async function fetchQuestions() {
     try {
-        const token = localStorage.getItem('adminToken');
+        // const token = localStorage.getItem('adminToken');
         const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
         
         const response = await fetch(API_URL, {
@@ -190,7 +191,7 @@ async function submitAnswer() {
     }
 
     try {
-        const token = localStorage.getItem('adminToken');
+        // const token = localStorage.getItem('adminToken');
         if (!token) {
             alert('Vui lòng đăng nhập để trả lời câu hỏi');
             return;
@@ -223,7 +224,7 @@ async function deleteQuestion(questionId) {
     }
 
     try {
-        const token = localStorage.getItem('adminToken');
+        // const token = localStorage.getItem('adminToken');
         const response = await fetch(`${API_URL}/${questionId}`, {
             method: 'DELETE',
             headers: {
