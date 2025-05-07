@@ -1,8 +1,4 @@
 <?php
-// src/Controllers/CartController.php
-
-// use PDO;
-// use PDOException;
 
 class CartController {
 
@@ -16,18 +12,12 @@ class CartController {
         $this->db = $pdo;
     }
 
-    // Hàm tiện ích gửi response
     private function sendResponse(int $statusCode, array $data): void {
         http_response_code($statusCode);
         header("Content-Type: application/json; charset=UTF-8");
         echo json_encode($data);
     }
 
-    /**
-     * Lấy (hoặc tạo nếu chưa có) cartId cho user
-     * @param int $userId ID của người dùng
-     * @return int|null cartId nếu thành công, null nếu lỗi
-     */
     private function getUserCartId(int $userId): ?int {
         try {
             // Thử tìm cartId hiện có
@@ -45,21 +35,15 @@ class CartController {
                 if ($stmtCreate->execute([$userId])) {
                     return (int)$this->db->lastInsertId();
                 } else {
-                    return null; // Lỗi khi tạo cart
+                    return null;
                 }
             }
         } catch (PDOException $e) {
             error_log("API Error (CartController::getUserCartId for user {$userId}): " . $e->getMessage());
-            return null; // Lỗi DB
+            return null;
         }
     }
 
-
-    /**
-     * Xử lý yêu cầu POST /cart/items
-     * Thêm sản phẩm vào giỏ hàng của người dùng đang đăng nhập
-     * @param object $userPayload Dữ liệu user từ token đã giải mã
-     */
     public function addItem(object $userPayload): void {
         $userId = $userPayload->userId; // Lấy userId từ token
 
@@ -86,7 +70,6 @@ class CartController {
         $quantity = (int)$quantity;
 
         try {
-            // Bắt đầu transaction để đảm bảo tính nhất quán (đặc biệt khi cần tạo cart)
             $this->db->beginTransaction();
 
             // 3. Lấy cartId của user (tạo nếu chưa có)
@@ -108,7 +91,7 @@ class CartController {
                 $this->sendResponse(404, ['error' => "Sản phẩm với ID {$productId} không tồn tại."]);
                 return;
             }
-            $productName = $product['name']; // Lấy tên để hiển thị thông báo
+            $productName = $product['name'];
             $stockQuantity = (int)$product['stock_quantity'];
 
             // 5. Kiểm tra xem sản phẩm đã có trong giỏ hàng chưa
@@ -139,19 +122,19 @@ class CartController {
                 $sqlUpdateCart = "UPDATE cart_contain_product SET number = ? WHERE cartId = ? AND productId = ?";
                 $stmtUpdateCart = $this->db->prepare($sqlUpdateCart);
                 $success = $stmtUpdateCart->execute([$newQuantity, $cartId, $productId]);
-                 $statusCode = 200; // OK vì là update
+                 $statusCode = 200;
                  $message = "Đã cập nhật số lượng sản phẩm '{$productName}' trong giỏ hàng.";
             } else {
                 // Thêm mới vào giỏ
                 $sqlInsertCart = "INSERT INTO cart_contain_product (cartId, productId, number, added_at) VALUES (?, ?, ?, NOW())";
                 $stmtInsertCart = $this->db->prepare($sqlInsertCart);
                 $success = $stmtInsertCart->execute([$cartId, $productId, $newQuantity]);
-                $statusCode = 201; // Created vì là thêm mới
+                $statusCode = 201;
                 $message = "Đã thêm sản phẩm '{$productName}' vào giỏ hàng.";
             }
 
             if ($success) {
-                $this->db->commit(); // Hoàn tất transaction thành công
+                $this->db->commit();
                 $this->sendResponse($statusCode, [
                     'message' => $message,
                     'cartId' => $cartId,
@@ -193,7 +176,6 @@ class CartController {
                                 p.name,
                                 p.price,
                                 p.image
-                                -- Thêm các trường khác của product nếu cần hiển thị trong giỏ hàng
                             FROM cart_contain_product ccp
                             JOIN product p ON ccp.productId = p.productId
                             WHERE ccp.cartId = ?
@@ -206,7 +188,6 @@ class CartController {
             // 3. (Tùy chọn) Tính tổng tiền tạm tính của giỏ hàng
             $subtotal = 0;
             foreach ($items as $item) {
-                // Chuyển đổi kiểu dữ liệu cho chắc chắn
                 $price = (float) $item['price'];
                 $quantity = (int) $item['quantity'];
                 $subtotal += $price * $quantity;
@@ -233,15 +214,12 @@ class CartController {
         if (json_last_error() !== JSON_ERROR_NONE) {
             $this->sendResponse(400, ['error' => 'Dữ liệu JSON không hợp lệ.']); return;
         }
-
-        // Kiểm tra xem có gửi đúng key 'items' và nó là mảng không
         if (!isset($inputData['items']) || !is_array($inputData['items'])) {
              $this->sendResponse(400, ['error' => 'Dữ liệu không hợp lệ. Cần gửi một object chứa key "items" là một mảng.']); return;
         }
         $items = $inputData['items'];
 
         try {
-            // Bắt đầu Transaction
             $this->db->beginTransaction();
 
             // 2. Lấy cartId (nên tạo nếu chưa có để tránh lỗi khi xóa)
@@ -255,13 +233,12 @@ class CartController {
             $sqlDelete = "DELETE FROM cart_contain_product WHERE cartId = ?";
             $stmtDelete = $this->db->prepare($sqlDelete);
             $stmtDelete->execute([$cartId]);
-            // Không cần kiểm tra rowCount ở đây, xóa hết là mục tiêu
 
             // 4. Chuẩn bị câu lệnh INSERT và kiểm tra tồn kho
             $sqlInsertItem = "INSERT INTO cart_contain_product (cartId, productId, number, added_at) VALUES (?, ?, ?, NOW())";
             $stmtInsertItem = $this->db->prepare($sqlInsertItem);
 
-            $sqlCheckStock = "SELECT name, number FROM product WHERE productId = ? FOR UPDATE"; // Thêm FOR UPDATE
+            $sqlCheckStock = "SELECT name, number FROM product WHERE productId = ? FOR UPDATE";
             $stmtCheckStock = $this->db->prepare($sqlCheckStock);
 
             // 5. Lặp qua mảng items mới và thêm vào CSDL
@@ -284,11 +261,11 @@ class CartController {
                 $product = $stmtCheckStock->fetch(PDO::FETCH_ASSOC);
                 if (!$product) {
                      $this->db->rollBack();
-                     $this->sendResponse(400, ['error' => "Sản phẩm với ID {$productId} không tồn tại."]); return; // Dùng 400 vì lỗi từ input của client
+                     $this->sendResponse(400, ['error' => "Sản phẩm với ID {$productId} không tồn tại."]); return;
                 }
                 if ((int)$product['number'] < $quantity) {
                      $this->db->rollBack();
-                     $this->sendResponse(409, [ // 409 Conflict
+                     $this->sendResponse(409, [
                         'error' => "Sản phẩm '{$product['name']}' (ID: {$productId}) không đủ số lượng tồn kho (yêu cầu {$quantity}, còn {$product['number']}).",
                         'productId' => $productId,
                         'stock_available' => (int)$product['number']
@@ -317,15 +294,13 @@ class CartController {
 
     public function removeItem(object $userPayload, int $productId): void {
         $userId = $userPayload->userId;
-    
-        // Validate productId cơ bản
+
         if ($productId <= 0) {
             $this->sendResponse(400, ['error' => 'ID sản phẩm không hợp lệ.']);
             return;
         }
     
         try {
-            // Lấy cartId của user. Không cần tạo cart nếu chưa có.
             $cartId = $this->getUserCartId($userId);
             if ($cartId === null) {
                  // Nếu user không có cartId nghĩa là giỏ hàng trống hoặc chưa từng tồn tại
@@ -340,17 +315,8 @@ class CartController {
     
             // Kiểm tra xem có dòng nào thực sự bị xóa không
             if ($stmt->rowCount() > 0) {
-                 // Xóa thành công
-                 // Lựa chọn 1: Trả về mã 204 No Content (chuẩn REST khi xóa thành công và không cần trả về body)
                  http_response_code(204);
-                 exit(); // Không echo gì cả
-    
-                 // Lựa chọn 2: Trả về 200 OK và giỏ hàng mới nhất (giống các hàm khác)
-                 // error_log("DEBUG Cart RemoveItem: Item {$productId} removed for cart {$cartId}. Fetching updated cart.");
-                 // $this->getCart($userPayload);
-    
-                 // Lựa chọn 3: Trả về 200 OK và message đơn giản
-                 // $this->sendResponse(200, ['message' => "Đã xóa sản phẩm ID {$productId} khỏi giỏ hàng."]);
+                 exit();
     
             } else {
                  // Không có dòng nào bị xóa -> sản phẩm này không có trong giỏ hàng của user
@@ -364,7 +330,5 @@ class CartController {
         }
     }
 
-    // Thêm các hàm khác cho Cart sau này (vd: getCart, updateQuantity, removeItem...)
-
-} // Kết thúc class CartController
+} 
 ?>

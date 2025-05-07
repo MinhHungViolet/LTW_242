@@ -11,11 +11,6 @@ class IntroductionController {
         $this->db = $pdo;
     }
 
-    /**
-     * Hàm tiện ích để gửi JSON response chuẩn hóa
-     * @param int $statusCode Mã trạng thái HTTP (vd: 200, 404, 500)
-     * @param array $data Dữ liệu cần gửi (mảng PHP)
-     */
     private function sendResponse(int $statusCode, array $data): void {
         http_response_code($statusCode);
         header("Content-Type: application/json; charset=UTF-8");
@@ -77,7 +72,7 @@ class IntroductionController {
                     title1 = :title1, content1 = :content1, 
                     title2 = :title2, content2 = :content2, 
                     title3 = :title3, content3 = :content3 
-                    WHERE id = 1"; // Giả sử bảng có 1 bản ghi duy nhất với id = 1
+                    WHERE id = 1";
             $stmt = $this->db->prepare($sql);
             $stmt->execute([
                 ':title1' => $input['title1'],

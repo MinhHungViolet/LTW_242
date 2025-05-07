@@ -1,8 +1,4 @@
 <?php
-// src/Controllers/AdminController.php
-
-// use PDO;
-// use PDOException;
 
 class AdminController {
 
@@ -17,17 +13,12 @@ class AdminController {
         $this->db = $pdo;
     }
 
-    // Hàm tiện ích gửi response (Tạm thời copy từ controller khác)
+    // Hàm tiện ích gửi response
     private function sendResponse(int $statusCode, array $data): void {
         http_response_code($statusCode);
         header("Content-Type: application/json; charset=UTF-8");
         echo json_encode($data);
     }
-
-    /**
-     * Xử lý yêu cầu POST /admin/users
-     * Admin tạo một tài khoản mới (mặc định là admin hoặc tùy chọn)
-     */
     public function createUser(): void {
         $inputData = json_decode(file_get_contents('php://input'), true);
 
@@ -36,16 +27,13 @@ class AdminController {
             return;
         }
 
-        // --- Validation cơ bản ---
         $name = $inputData['name'] ?? null;
         $email = $inputData['email'] ?? null;
         $password = $inputData['password'] ?? null;
-        // Thêm các trường tùy chọn khác nếu muốn admin có thể set khi tạo
+
         $phone = $inputData['phone'] ?? null;
         $avatar = $inputData['avatar'] ?? null;
-        // Cho phép admin set role khi tạo, nếu không gửi thì mặc định là admin? Hoặc luôn là admin?
-        // Trong ví dụ này, sẽ luôn tạo là 'admin'. Nếu muốn linh hoạt, cần thêm logic kiểm tra role input.
-        $roleToCreate = 'admin'; // Luôn tạo admin qua endpoint này
+        $roleToCreate = 'admin';
 
         if (empty($name) || empty($email) || empty($password)) {
             $this->sendResponse(400, ['error' => 'Thiếu tên, email hoặc mật khẩu.']);
@@ -59,7 +47,6 @@ class AdminController {
              $this->sendResponse(400, ['error' => 'Mật khẩu phải có ít nhất 8 ký tự.']);
              return;
         }
-        // *** Thêm validation khác nếu cần ***
 
         // --- Kiểm tra Email tồn tại ---
         try {
@@ -92,9 +79,6 @@ class AdminController {
 
             if ($success) {
                 $newUserId = $this->db->lastInsertId();
-                // Trả về thông tin admin vừa tạo (không có pass)
-                // Chúng ta không gọi lại getById vì hàm đó có thể không tồn tại hoặc không phù hợp
-                // Nên tạo một hàm riêng để lấy thông tin user nếu cần
                 $this->sendResponse(201, [
                     'message' => 'Tạo tài khoản Admin thành công!',
                     'userId' => (int)$newUserId,
@@ -117,18 +101,12 @@ class AdminController {
 
     public function getAllUsers(): void {
         try {
-            // Chuẩn bị câu lệnh SQL - QUAN TRỌNG: Không bao giờ lấy cột password!
             $sql = "SELECT userId, name, email, role, phone, avatar, created_at
                     FROM user
-                    ORDER BY userId ASC"; // Sắp xếp theo ID tăng dần (hoặc tùy chọn khác)
-    
-            // Thực thi query (không cần prepare vì không có tham số đầu vào)
+                    ORDER BY userId ASC"; 
+
             $stmt = $this->db->query($sql);
-    
-            // Lấy tất cả kết quả
             $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
-            // Trả về danh sách user với mã 200 OK
             $this->sendResponse(200, 
             [
                 'status' => 'success',
@@ -140,12 +118,6 @@ class AdminController {
         }
     }
 
-    /**
-     * Xử lý yêu cầu DELETE /admin/users/{userId}
-     * Admin xóa một tài khoản người dùng khác
-     * @param int $userIdToDelete ID của người dùng cần xóa
-     * @param int $loggedInUserId ID của admin đang thực hiện hành động (lấy từ token)
-     */
     public function deleteUser(int $userIdToDelete, int $loggedInUserId): void {
          // 0. Kiểm tra ID hợp lệ
          if ($userIdToDelete <= 0) {
@@ -177,17 +149,12 @@ class AdminController {
              // 4. Kiểm tra kết quả xóa
              if ($stmtDelete->rowCount() > 0) {
                  $this->sendResponse(200, ['message' => "Đã xóa thành công người dùng với ID = {$userIdToDelete}."]);
-                 // Hoặc trả về 204 No Content nếu muốn
-                 // http_response_code(204);
-                 // exit();
              } else {
-                 // Trường hợp này ít xảy ra nếu đã kiểm tra tồn tại ở trên, nhưng vẫn nên có
                  $this->sendResponse(500, ['error' => "Xóa người dùng ID {$userIdToDelete} thất bại mặc dù đã tìm thấy."]);
              }
 
          } catch (PDOException $e) {
               error_log("API Error (AdminController::deleteUser {$userIdToDelete}): " . $e->getMessage());
-               // Xử lý lỗi khóa ngoại nếu cần (vd: user có đơn hàng...) - Tùy thuộc vào cấu hình ON DELETE của bạn
                if ($e->getCode() == 23000) {
                    $this->sendResponse(409, ['error' => "Không thể xóa người dùng ID {$userIdToDelete} do có ràng buộc dữ liệu (ví dụ: người dùng có đơn hàng)."]); // 409 Conflict
                } else {
@@ -198,12 +165,11 @@ class AdminController {
 
     public function getAllOrders(): void {
         try {
-            // Lấy thông tin cần thiết từ bảng purchased_order
-            // Có thể JOIN với bảng user để lấy tên/email người đặt nếu muốn
+
             $sql = "SELECT po.orderId, po.userId, u.name as customerName, u.email as customerEmail, po.address, po.totalPrice, po.method, po.date, po.status
                     FROM purchased_order po
                     JOIN user u ON po.userId = u.userId
-                    ORDER BY po.date DESC"; // Sắp xếp theo ngày gần nhất
+                    ORDER BY po.date DESC";
 
             $stmt = $this->db->query($sql);
             $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -215,13 +181,6 @@ class AdminController {
             $this->sendResponse(500, ['error' => 'Lỗi máy chủ nội bộ khi lấy danh sách đơn hàng.']);
         }
     }
-
-    // *** THÊM HÀM MỚI: CẬP NHẬT TRẠNG THÁI ĐƠN HÀNG ***
-    /**
-     * Xử lý yêu cầu PUT /admin/orders/{orderId}/status
-     * Admin cập nhật trạng thái cho một đơn hàng
-     * @param int $orderId ID của đơn hàng cần cập nhật
-     */
     public function updateOrderStatus(int $orderId): void {
         // 0. Kiểm tra orderId hợp lệ
         if ($orderId <= 0) {
@@ -244,24 +203,12 @@ class AdminController {
              return;
         }
 
-        // Lấy các giá trị ENUM hợp lệ từ CSDL (hoặc định nghĩa sẵn trong code)
-        // Cách lấy từ DB (cần thực hiện 1 lần hoặc cache lại):
-        /*
-        $stmtEnum = $this->db->query("SHOW COLUMNS FROM purchased_order LIKE 'status'");
-        $enumData = $stmtEnum->fetch(PDO::FETCH_ASSOC);
-        preg_match("/^enum\(\'(.*)\'\)$/", $enumData['Type'], $matches);
-        $allowedStatuses = explode("','", $matches[1]);
-        */
-        // Hoặc định nghĩa sẵn (dễ hơn và thường đủ dùng):
         $allowedStatuses = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
 
         if (!in_array($newStatus, $allowedStatuses)) {
              $this->sendResponse(400, ['error' => "Trạng thái '{$newStatus}' không hợp lệ. Các trạng thái được phép: " . implode(', ', $allowedStatuses)]);
              return;
         }
-
-        // (Tùy chọn) Thêm logic kiểm tra chuyển đổi trạng thái hợp lệ ở đây
-        // Ví dụ: không cho chuyển từ 'cancelled' sang 'processing', v.v.
 
         // 3. Thực hiện cập nhật CSDL
         $sql = "UPDATE purchased_order SET status = ? WHERE orderId = ?";
@@ -271,7 +218,6 @@ class AdminController {
 
             // 4. Kiểm tra xem có cập nhật được không
             if ($stmt->rowCount() > 0) {
-                // Lấy lại thông tin đơn hàng đã cập nhật để trả về (tùy chọn)
                 $sqlGetUpdated = "SELECT orderId, userId, address, totalPrice, method, date, status FROM purchased_order WHERE orderId = ?";
                 $stmtGetUpdated = $this->db->prepare($sqlGetUpdated);
                 $stmtGetUpdated->execute([$orderId]);
@@ -280,17 +226,14 @@ class AdminController {
                 if ($updatedOrder) {
                      $this->sendResponse(200, $updatedOrder);
                 } else {
-                     // Trường hợp hy hữu: update thành công nhưng fetch lại thất bại?
                      $this->sendResponse(200, ['message' => "Đã cập nhật trạng thái đơn hàng ID {$orderId} thành '{$newStatus}', nhưng không thể lấy lại dữ liệu."]);
                 }
             } else {
-                // Nếu rowCount = 0, kiểm tra xem orderId có tồn tại không
                 $checkStmt = $this->db->prepare("SELECT orderId FROM purchased_order WHERE orderId = ?");
                 $checkStmt->execute([$orderId]);
                 if (!$checkStmt->fetch()) {
                      $this->sendResponse(404, ['error' => "Không tìm thấy đơn hàng với ID = {$orderId} để cập nhật."]);
                 } else {
-                     // Đơn hàng tồn tại nhưng trạng thái gửi lên giống trạng thái hiện tại
                      $this->sendResponse(200, ['message' => "Trạng thái đơn hàng ID {$orderId} không thay đổi (đã là '{$newStatus}')."]);
                 }
             }
@@ -300,12 +243,10 @@ class AdminController {
         }
     }
     public function getOrderDetailAsAdmin(int $orderId): void {
-        // Validate orderId cơ bản
         if ($orderId <= 0) {
             $this->sendResponse(400, ['error' => 'ID đơn hàng không hợp lệ.']);
             return;
         }
-    
         try {
             // 1. Lấy thông tin đơn hàng chính và JOIN với bảng user để lấy thông tin người đặt
             $sqlOrder = "SELECT
@@ -313,17 +254,14 @@ class AdminController {
                              po.userId, u.name as customerName, u.email as customerEmail
                          FROM purchased_order po
                          JOIN user u ON po.userId = u.userId
-                         WHERE po.orderId = ?"; // *** Không cần kiểm tra userId của admin ở đây ***
+                         WHERE po.orderId = ?";
             $stmtOrder = $this->db->prepare($sqlOrder);
             $stmtOrder->execute([$orderId]);
             $orderData = $stmtOrder->fetch(PDO::FETCH_ASSOC);
-    
-            // Nếu không tìm thấy đơn hàng với ID này
             if (!$orderData) {
                 $this->sendResponse(404, ['error' => "Không tìm thấy đơn hàng với ID = {$orderId}."]);
                 return;
             }
-    
             // 2. Lấy danh sách sản phẩm trong đơn hàng đó (Giống như getOrderDetail của User)
             $sqlItems = "SELECT
                              pocp.productId,
@@ -350,5 +288,5 @@ class AdminController {
         }
     }
 
-} // Kết thúc class AdminController
+}
 ?>

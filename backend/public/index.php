@@ -1,34 +1,29 @@
 <?php
 
-
-// Nạp autoloader của Composer (Quan trọng cho thư viện JWT)
 require_once __DIR__ . '/../vendor/autoload.php';
 
-// --- Headers Cơ Bản Cho API ---
 header("Content-Type: application/json; charset=UTF-8");
-header("Access-Control-Allow-Origin: *"); // Thay * bằng domain frontend khi deploy
+header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
-// Xử lý request OPTIONS CORS Preflight
+
 if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     http_response_code(200);
     exit();
 }
 
-// --- Include các file cần thiết ---
 require_once __DIR__ . '/../src/Database/Connection.php';
 require_once __DIR__ . '/../src/Controllers/ProductController.php';
 require_once __DIR__ . '/../src/Controllers/AuthController.php';
-require_once __DIR__ . '/../src/helpers.php'; // Include nếu hàm authenticate() ở đây
+require_once __DIR__ . '/../src/helpers.php'; 
 require_once __DIR__ . '/../src/Controllers/AdminController.php';
 require_once __DIR__ . '/../src/Controllers/CartController.php';
 require_once __DIR__ . '/../src/Controllers/OrderController.php';
-require_once __DIR__ . '/../src/Controllers/UserController.php'; // Đã có UserController
-require_once __DIR__ . '/../src/Controllers/QnaController.php'; // Đã có UserController
-require_once __DIR__ . '/../src/Controllers/IntroductionController.php'; // Đã có UserController
-require_once __DIR__ . '/../src/Controllers/BlogController.php'; // Đã có BlogController
+require_once __DIR__ . '/../src/Controllers/UserController.php'; 
+require_once __DIR__ . '/../src/Controllers/QnaController.php';
+require_once __DIR__ . '/../src/Controllers/IntroductionController.php'; 
+require_once __DIR__ . '/../src/Controllers/BlogController.php';
 
-// --- Hàm Xác Thực JWT (Giả định đã có trong helpers.php hoặc được include đúng cách) ---
 if (function_exists('authenticate') === false && file_exists(__DIR__ . '/../src/helpers.php')) {
     require_once __DIR__ . '/../src/helpers.php';
 } elseif (function_exists('authenticate') === false) {
@@ -39,14 +34,12 @@ if (function_exists('authenticate') === false && file_exists(__DIR__ . '/../src/
     }
 }
 
-// --- Lấy kết nối Database ---
 $pdo = Connection::getInstance();
 
-// --- Phân tích URL và Phương thức HTTP ---
 $requestUri = $_SERVER['REQUEST_URI'];
 $requestMethod = $_SERVER['REQUEST_METHOD'];
 $requestPath = parse_url($requestUri, PHP_URL_PATH);
-$basePath = '/backend/public'; // Đảm bảo đúng basePath của bạn
+$basePath = '/backend/public';
 if (!empty($basePath) && strpos($requestPath, $basePath) === 0) {
     $routePath = substr($requestPath, strlen($basePath));
 } else {
@@ -55,7 +48,6 @@ if (!empty($basePath) && strpos($requestPath, $basePath) === 0) {
 $routePath = trim($routePath, '/');
 $pathSegments = explode('/', $routePath);
 
-// --- Routing Logic ---
 if (!$pdo) {
     http_response_code(503);
     echo json_encode(['error' => 'Không thể kết nối đến dịch vụ cơ sở dữ liệu.']);
@@ -65,7 +57,6 @@ if (!$pdo) {
 $mainRoute = $pathSegments[0] ?? '';
 
 if ($mainRoute === 'products') {
-    // === Route cho Products ===
     $productController = new ProductController($pdo);
     if (isset($pathSegments[1]) && is_numeric($pathSegments[1])) {
         $productId = (int)$pathSegments[1];

@@ -9,7 +9,7 @@ let selectedQuestionId = null;
 
 async function fetchUsers() {
     try {
-        const token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJ5b3VyX2FwaV9kb21haW4uY29tIiwiYXVkIjoieW91cl9hcGlfZG9tYWluLmNvbSIsImlhdCI6MTc0NjI3MjE4OCwiZXhwIjoxNzQ2ODc2OTg4LCJ1c2VySWQiOjExLCJlbWFpbCI6InF1b2NkYXRhZG1pbkBlbWFpbC5jb20iLCJyb2xlIjoiYWRtaW4ifQ.6l0-lxKa-GXQItFzYp9PEs989w6R9AeIyF-u3s9O2cI';
+        const token = localStorage.getItem('adminToken');
         const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
         
         const response = await fetch(USER_API_URL, {
@@ -28,7 +28,7 @@ async function fetchUsers() {
 
 async function fetchQuestions() {
     try {
-        const token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJ5b3VyX2FwaV9kb21haW4uY29tIiwiYXVkIjoieW91cl9hcGlfZG9tYWluLmNvbSIsImlhdCI6MTc0NjI3MjE4OCwiZXhwIjoxNzQ2ODc2OTg4LCJ1c2VySWQiOjExLCJlbWFpbCI6InF1b2NkYXRhZG1pbkBlbWFpbC5jb20iLCJyb2xlIjoiYWRtaW4ifQ.6l0-lxKa-GXQItFzYp9PEs989w6R9AeIyF-u3s9O2cI';
+        const token = localStorage.getItem('adminToken');
         const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
         
         const response = await fetch(API_URL, {
@@ -190,8 +190,7 @@ async function submitAnswer() {
     }
 
     try {
-        const token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJ5b3VyX2FwaV9kb21haW4uY29tIiwiYXVkIjoieW91cl9hcGlfZG9tYWluLmNvbSIsImlhdCI6MTc0NjI3MjE4OCwiZXhwIjoxNzQ2ODc2OTg4LCJ1c2VySWQiOjExLCJlbWFpbCI6InF1b2NkYXRhZG1pbkBlbWFpbC5jb20iLCJyb2xlIjoiYWRtaW4ifQ.6l0-lxKa-GXQItFzYp9PEs989w6R9AeIyF-u3s9O2cI';
-
+        const token = localStorage.getItem('adminToken');
         if (!token) {
             alert('Vui lòng đăng nhập để trả lời câu hỏi');
             return;
@@ -224,8 +223,7 @@ async function deleteQuestion(questionId) {
     }
 
     try {
-        const token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJ5b3VyX2FwaV9kb21haW4uY29tIiwiYXVkIjoieW91cl9hcGlfZG9tYWluLmNvbSIsImlhdCI6MTc0NjI3MjE4OCwiZXhwIjoxNzQ2ODc2OTg4LCJ1c2VySWQiOjExLCJlbWFpbCI6InF1b2NkYXRhZG1pbkBlbWFpbC5jb20iLCJyb2xlIjoiYWRtaW4ifQ.6l0-lxKa-GXQItFzYp9PEs989w6R9AeIyF-u3s9O2cI';
-
+        const token = localStorage.getItem('adminToken');
         const response = await fetch(`${API_URL}/${questionId}`, {
             method: 'DELETE',
             headers: {

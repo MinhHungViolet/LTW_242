@@ -1,8 +1,4 @@
 <?php
-// src/Controllers/OrderController.php
-
-// use PDO;
-// use PDOException;
 
 class OrderController {
 
@@ -16,33 +12,25 @@ class OrderController {
         $this->db = $pdo;
     }
 
-    // Hàm tiện ích gửi response
     private function sendResponse(int $statusCode, array $data): void {
         http_response_code($statusCode);
         header("Content-Type: application/json; charset=UTF-8");
         echo json_encode($data);
     }
 
-    // Hàm lấy cartId (có thể copy từ CartController hoặc tạo BaseController)
     private function getUserCartId(int $userId): ?int {
         try {
             $sqlFind = "SELECT cartId FROM cart WHERE userId = ?";
             $stmtFind = $this->db->prepare($sqlFind);
             $stmtFind->execute([$userId]);
             $cart = $stmtFind->fetch(PDO::FETCH_ASSOC);
-            return $cart ? (int)$cart['cartId'] : null; // Chỉ lấy, không tạo ở đây
+            return $cart ? (int)$cart['cartId'] : null;
         } catch (PDOException $e) {
             error_log("API Error (OrderController::getUserCartId for user {$userId}): " . $e->getMessage());
             return null;
         }
     }
 
-
-    /**
-     * Xử lý yêu cầu POST /orders
-     * Tạo đơn hàng mới từ giỏ hàng của người dùng
-     * @param object $userPayload Dữ liệu user từ token
-     */
     public function createOrder(object $userPayload): void {
         $userId = $userPayload->userId;
 
@@ -61,24 +49,19 @@ class OrderController {
             $this->sendResponse(400, ['error' => 'Thiếu địa chỉ nhận hàng (address) hoặc phương thức thanh toán (method).']);
             return;
         }
-        // Thêm validation khác cho address, method nếu cần
 
         try {
-            // Bắt đầu Transaction - Rất quan trọng cho việc đặt hàng
             $this->db->beginTransaction();
 
             // 3. Lấy cartId của user
             $cartId = $this->getUserCartId($userId);
             if ($cartId === null) {
-                $this->db->rollBack(); // Không cần rollback vì chưa làm gì, nhưng để cho an toàn
+                $this->db->rollBack();
                 $this->sendResponse(404, ['error' => 'Không tìm thấy giỏ hàng cho người dùng này.']);
                 return;
             }
 
             // 4. Lấy các sản phẩm trong giỏ hàng và thông tin sản phẩm tương ứng
-            // Dùng JOIN để lấy cả giá và tồn kho hiện tại
-            // Thêm FOR UPDATE để khóa các dòng sản phẩm và giỏ hàng, tránh race condition khi nhiều người đặt cùng lúc
-            // Lưu ý: FOR UPDATE có thể ảnh hưởng hiệu năng, cân nhắc dùng nếu hệ thống có tải cao.
             $sqlGetCartItems = "SELECT
                                     ccp.productId,
                                     ccp.number AS quantity_in_cart,
@@ -87,7 +70,7 @@ class OrderController {
                                     p.number AS stock_quantity
                                 FROM cart_contain_product ccp
                                 JOIN product p ON ccp.productId = p.productId
-                                WHERE ccp.cartId = ? FOR UPDATE"; // Khóa dòng để kiểm tra tồn kho chính xác
+                                WHERE ccp.cartId = ? FOR UPDATE";
             $stmtGetCartItems = $this->db->prepare($sqlGetCartItems);
             $stmtGetCartItems->execute([$cartId]);
             $cartItems = $stmtGetCartItems->fetchAll(PDO::FETCH_ASSOC);
@@ -113,7 +96,7 @@ class OrderController {
                 // Kiểm tra tồn kho
                 if ($stockQuantity < $quantityInCart) {
                     $this->db->rollBack();
-                    $this->sendResponse(409, [ // 409 Conflict vì trạng thái đã thay đổi
+                    $this->sendResponse(409, [ 
                         'error' => "Sản phẩm '{$productName}' (ID: {$productId}) không đủ số lượng tồn kho (cần {$quantityInCart}, còn {$stockQuantity}). Vui lòng cập nhật giỏ hàng.",
                         'productId' => $productId,
                         'stock_available' => $stockQuantity
@@ -189,13 +172,12 @@ class OrderController {
             $sqlDeleteCartItems = "DELETE FROM cart_contain_product WHERE cartId = ?";
             $stmtDeleteCartItems = $this->db->prepare($sqlDeleteCartItems);
             $stmtDeleteCartItems->execute([$cartId]);
-            // Có thể cân nhắc xóa cả record trong bảng `cart` nếu muốn, nhưng để lại cũng không sao
 
             // 10. Nếu mọi thứ thành công -> Commit Transaction
             $this->db->commit();
 
             // 11. Trả về thông tin đơn hàng vừa tạo
-            $this->sendResponse(201, [ // 201 Created
+            $this->sendResponse(201, [
                 'message' => 'Đặt hàng thành công!',
                 'orderId' => (int)$orderId,
                 'totalPrice' => $totalPrice,
@@ -204,7 +186,6 @@ class OrderController {
             ]);
 
         } catch (PDOException $e) {
-            // Rollback nếu có lỗi DB trong quá trình transaction
             if ($this->db->inTransaction()) {
                 $this->db->rollBack();
             }
@@ -250,13 +231,11 @@ class OrderController {
             // 1. Lấy thông tin đơn hàng chính và kiểm tra xem có đúng là của user này không
             $sqlOrder = "SELECT orderId, address, totalPrice, method, date, status, userId
                          FROM purchased_order
-                         WHERE orderId = ? AND userId = ?"; // *** Quan trọng: Thêm AND userId = ? ***
+                         WHERE orderId = ? AND userId = ?";
             $stmtOrder = $this->db->prepare($sqlOrder);
             $stmtOrder->execute([$orderId, $userId]);
             $orderData = $stmtOrder->fetch(PDO::FETCH_ASSOC);
     
-            // Nếu không tìm thấy đơn hàng hoặc đơn hàng không thuộc user này -> trả về 404
-            // (Không nên phân biệt rõ ràng giữa "không tồn tại" và "không có quyền" để tránh lộ thông tin)
             if (!$orderData) {
                 error_log("Attempt to access order {$orderId} by user {$userId} failed or order does not exist.");
                 $this->sendResponse(404, ['error' => "Không tìm thấy đơn hàng với ID = {$orderId}."]);
@@ -279,8 +258,6 @@ class OrderController {
     
             // 3. Gắn danh sách items vào dữ liệu đơn hàng chính
             $orderData['items'] = $items;
-            // Có thể bỏ userId khỏi kết quả trả về cuối cùng nếu muốn
-            // unset($orderData['userId']);
     
             // 4. Trả về kết quả thành công
             $this->sendResponse(200, $orderData);
@@ -291,5 +268,5 @@ class OrderController {
         }
     }
 
-} // Kết thúc class OrderController
+}
 ?>

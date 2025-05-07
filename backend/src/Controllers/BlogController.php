@@ -22,9 +22,6 @@ class BlogController {
         }
     }
 
-    /**
-     * Hàm tiện ích gửi JSON response chuẩn hóa
-     */
     private function sendResponse(int $statusCode, array $data): void {
         http_response_code($statusCode);
         if (!headers_sent()) {

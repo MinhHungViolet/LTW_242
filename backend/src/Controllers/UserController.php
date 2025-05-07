@@ -1,18 +1,10 @@
 <?php
-// src/Controllers/UserController.php
-
-// Bỏ comment hoặc thêm nếu chưa có
-// use PDO;
-// use PDOException;
-
 class UserController {
 
     private $db;
 
     public function __construct(?PDO $pdo) {
         if ($pdo === null) {
-            // Không thể dùng $this->sendResponse ở đây vì $this chưa hoàn toàn được tạo
-            // Nên trả về lỗi trực tiếp hoặc ném Exception
              http_response_code(500);
              header("Content-Type: application/json; charset=UTF-8");
              echo json_encode(['error' => 'Lỗi nghiêm trọng: Không có kết nối CSDL trong UserController constructor.']);
@@ -21,21 +13,14 @@ class UserController {
         $this->db = $pdo;
     }
 
-    // Hàm tiện ích gửi response
     private function sendResponse(int $statusCode, array $data): void {
         http_response_code($statusCode);
-        // Đảm bảo header Content-Type là JSON
-        if (!headers_sent()) { // Kiểm tra header chưa gửi đi
+        if (!headers_sent()) {
              header("Content-Type: application/json; charset=UTF-8");
         }
         echo json_encode($data);
     }
 
-    /**
-     * Xử lý GET /user/profile
-     * Lấy thông tin profile của user đang đăng nhập
-     * @param object $userPayload Payload từ JWT đã được xác thực
-     */
     public function getProfile(object $userPayload): void {
         $userId = $userPayload->userId;
 
@@ -49,14 +34,8 @@ class UserController {
             $userData = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if ($userData) {
-                 // Nếu avatar được lưu là tên file, tạo URL đầy đủ để trả về cho frontend (tùy chọn)
                  if (!empty($userData['avatar'])) {
-                      // Giả sử API_BASE_URL là biến toàn cục hoặc lấy từ config
-                      // và thư mục uploads nằm trong public
-                      // $baseImageUrl = rtrim(getenv('API_BASE_URL') ?: 'http://localhost/backend', '/') . '/uploads/avatars/'; // Bỏ /public
-                      // $userData['avatarUrl'] = $baseImageUrl . $userData['avatar'];
 
-                      // Hoặc đơn giản chỉ trả về tên file, frontend tự xử lý
                  }
                 $this->sendResponse(200, $userData);
             } else {
@@ -68,12 +47,6 @@ class UserController {
         }
     }
 
-    /**
-     * Xử lý PUT /user/profile (ĐÃ GOM CHUNG + THÊM LOG + ROWCOUNT CHECK)
-     * Cập nhật thông tin (tên, sđt) và/hoặc avatar cho user đang đăng nhập
-     * Nhận dữ liệu dạng multipart/form-data
-     * @param object $userPayload Payload từ JWT
-     */
     public function updateProfile(object $userPayload): void {
         $userId = $userPayload->userId;
         error_log("DEBUG updateProfile: Called for userId = {$userId}");
@@ -93,15 +66,10 @@ class UserController {
         // Validate và thêm name
         if ($inputName !== null) {
              $name = trim($inputName);
-             // Cho phép cập nhật tên rỗng không? Nếu không thì kiểm tra !empty()
-             // if (!empty($name)) {
-             // Giả sử cho phép cập nhật tên, kể cả rỗng (frontend nên validate nếu cần bắt buộc)
              error_log("DEBUG updateProfile: Adding 'name' to update.");
              $fieldsToUpdate[] = "name = ?";
              $params[] = $name;
-             // } else {
-             //     $this->sendResponse(400, ['error' => 'Tên không được để trống.']); return;
-             // }
+
         }
 
         // Validate và thêm phone
@@ -141,7 +109,7 @@ class UserController {
                   $params[] = $newAvatarDbPath;
 
                    // Xóa avatar cũ
-                   try { /* ... code xóa avatar cũ như trước ... */
+                   try {
                         $sqlGetOld = "SELECT avatar FROM user WHERE userId = ?";
                         $stmtGetOld = $this->db->prepare($sqlGetOld);
                         $stmtGetOld->execute([$userId]);
@@ -182,22 +150,17 @@ class UserController {
         try {
             $stmt = $this->db->prepare($sql);
             $success = $stmt->execute($params);
-            $rowCount = $stmt->rowCount(); // Lấy số dòng bị ảnh hưởng
+            $rowCount = $stmt->rowCount(); 
     
             error_log("DEBUG updateProfile - Execute status: " . ($success ? 'true' : 'false') . ", Row count: " . $rowCount);
     
             // 6. Kiểm tra kết quả và trả về response DỰA TRÊN ROWCOUNT
-            if ($success) { // Kiểm tra xem execute() có thành công không
+            if ($success) { 
                 if ($rowCount > 0) {
-                     // *** CÓ THAY ĐỔI DỮ LIỆU ***
-                     // Gọi getProfile để trả về dữ liệu mới nhất sau khi cập nhật
                      error_log("DEBUG updateProfile: Update successful, {$rowCount} row(s) affected for user {$userId}. Fetching updated profile.");
                      $this->getProfile($userPayload);
                 } else {
-                     // *** KHÔNG CÓ THAY ĐỔI DỮ LIỆU (rowCount = 0) ***
-                     // Thực thi thành công nhưng không có dòng nào thay đổi (dữ liệu gửi lên giống hệt dữ liệu cũ)
                      error_log("DEBUG updateProfile: Update executed but no rows affected for user {$userId}. Data might be the same.");
-                     // Trả về một thông báo rõ ràng thay vì gọi lại getProfile
                      $this->sendResponse(200, ['message' => 'Thông tin không có gì thay đổi. Dữ liệu gửi lên giống với dữ liệu hiện tại.']);
                 }
             } else {
@@ -215,5 +178,5 @@ class UserController {
         }
     }
 
- } // Kết thúc class UserController
+ }
  ?>

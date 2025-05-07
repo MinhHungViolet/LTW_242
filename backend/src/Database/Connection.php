@@ -1,6 +1,5 @@
 <?php
-// use PDO;
-// use PDOException;
+
 class Connection {
 
     private static $pdoInstance = null;
