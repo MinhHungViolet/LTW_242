@@ -1,3 +1,38 @@
-# https://www.robotstxt.org/robotstxt.html
+# robots.txt for better SEO
+# Main search engines
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
+
+# Allow all other crawlers
 User-agent: *
-Disallow:
+Allow: /
+
+# Prevent access to certain paths
+Disallow: /private/
+Disallow: /admin/
+Disallow: /user/
+Disallow: /*.json$
+Disallow: /*?*
+Disallow: /purchase/checkout
+Disallow: /news/*
+
+# Allow specific routes
+Allow: /product
+Allow: /news$
+Allow: /introduction
+Allow: /question
+
+# Sitemap
+Sitemap: http://localhost:3000/sitemap.xml
+
+# Crawl-delay for rate limiting (in seconds)
+Crawl-delay: 1
