@@ -54,7 +54,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td>${p.name}</td>
                 <td>${p.price}</td>
                 <td>${p.category}</td>
-                <td>${p.color || ''}</td>
                 <td>
                     <button class="btn btn-sm btn-warning me-1" onclick="openModal(${p.productId})">Sửa</button>
                     <button class="btn btn-sm btn-danger" onclick="confirmDelete(${p.productId})">Xóa</button>

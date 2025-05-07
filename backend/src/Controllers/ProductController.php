@@ -40,7 +40,7 @@ class ProductController {
     // GET - /products (Giữ nguyên)
     public function getAll(): void {
         try {
-            $sql = "SELECT productId, name, price, image, category, number as stock_quantity FROM product ORDER BY created_at DESC";
+            $sql = "SELECT productId, name, price, image, category, number as stock_quantity, color FROM product ORDER BY created_at DESC";
             $stmt = $this->db->query($sql);
             $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
              // Thêm URL đầy đủ cho ảnh nếu cần
